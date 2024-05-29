@@ -1,0 +1,6 @@
+include requirements_ttt.txt
+include requirements_itt.txt
+include requirements_stt.txt
+include requirements_tts.txt
+include gai.json
+include gai/gen/api/VERSION

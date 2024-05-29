@@ -1,0 +1,1 @@
+curl -X DELETE http://localhost:12031/gen/v1/rag/document/f30e7efb-0419-4007-bd50-62f69bda583a

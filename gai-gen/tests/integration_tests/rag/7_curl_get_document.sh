@@ -1,0 +1,1 @@
+curl 'http://localhost:12031/gen/v1/rag/chunks/by_document/demo/PwR6VmXqAfwjn84ZM6dePsLWTldPv8cNS5dESYlsY2U'

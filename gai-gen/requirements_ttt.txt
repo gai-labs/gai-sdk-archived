@@ -1,0 +1,16 @@
+torch==2.1.2
+torchaudio==2.1.2
+torchvision==0.16.2
+exllama==0.1.0
+llama_cpp_python==0.2.29
+openai==1.8.0
+anthropic==0.9.0
+pillow==10.2.0
+transformers==4.36.2
+bitsandbytes==0.42.0
+accelerate==0.26.1
+fastapi==0.109.2
+huggingface-hub
+pydantic
+python-dotenv
+uvicorn

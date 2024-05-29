@@ -1,0 +1,95 @@
+---
+id: intro
+title: Introduction
+sidebar_position: 1
+slug: /
+---
+
+**Gai** is a LLM application development library suite that aims to adapt the powerful features of proprietary language models for use on local machines with onpen-source models.
+
+Gai's design philosophy:
+
+-   **Not a one-size-fits-all framework.** Gai prioritises specific, high-utility aspects of LLM applications so that developers can utilise LLM in applications faster, easier and with lesser maintenance.[^1]
+    [^1]: If you require a comprehensive framework, you may want to consider using [LangChain](https://www.langchain.com).
+
+-   **Not a generic wrapper for all models**. Gai prioritises the optimization of its library for a select number of open source language models that can serve as viable alternatives to proprietary ones. This makes it easier to create quality LLM applications with fewer resources.[^2]
+    [^2]: If you require a generic library, you may want to consider using [HuggingFace's Transformers](https://huggingface.co/transformers/).
+
+-   **Works for both proprietary and local models**. Adopt Openai's API specification as a standard for all models while offering an alternative simplified interface that is still applicable for both.
+
+:::note
+It is not just the programming interface that is adopted but the functionality as well. For instance, OpenAI's chatcompletion API supports Function Calling in addition to text generation. Therefore, to become an effective alternative, Gai developed capabilities for supporting function calling in open source models as well.
+:::
+
+## Models
+
+**Gai** supports calling both proprietary and open-source models for the following features:
+
+<!-- prettier-ignore -->
+<table>
+    <tr>
+        <th>Feature</th>
+        <th>Proprietary</th>
+        <th>Open Source</th>
+    </tr>
+    <tr>
+        <td>Text-to-Text (TTT):<ul><li>chat completion</li><li>long context</li><li>function call</li></ul></td>
+        <td>OpenAI GPT-4</td>
+        <td>Mistral7b (8k)<br />Mistral7b (128k)</td>
+    </tr>
+    <tr>
+        <td>Speech-to-Text (TTT)</td>
+        <td>OpenAI Whisper</td>
+        <td>OpenAI Whisper (Open Source)</td>
+    </tr>
+    <tr>
+        <td>Text-to-Speech (TTS)</td>
+        <td>OpenAI Speech</td>
+        <td>Coqui-TTS</td>
+    </tr>
+    <tr>
+        <td>Image-to-Text (ITT)</td>
+        <td>OpenAI Vision</td>
+        <td>Llava7b</td>
+    </tr>
+    <tr>
+        <td>Retrieval-Augmented-Generation (RAG)</td>
+        <td>OpenAI Ada</td>
+        <td>Instructor Embedding</td>
+    </tr>
+    <tr>
+        <td>Text-to-Code (TTC)</td>
+        <td>Code Interpreter</td>
+        <td>DeepSeek Coder</td>
+    </tr>
+</table>
+
+## Libraries
+
+There are two main libraries in the Gai suite:
+
+-   **[Gai/Gen](gai-gen/gai-gen-intro)**: Main focus is in interacting with local LLMs. It is designed around a singleton wrapper running only one model at a time. The library can be used to develop single model API services known as **Gai Instances**. For more complex scenarios, such as multi-modal application, retrieval-augmented generation or multi-agent chatbots, you may require a cluster of Gai Instances.
+
+-   **[Gai/Lib](gai-lib/gai-lib-intro)**: Main focus is to provide client-side access to both propretary models and Gai Instances.
+
+## License
+
+This project is licensed under the [MIT](./LICENSE) License. Please refer to the LICENSE file for more details.
+
+## Disclaimer
+
+While this library itself is licensed under the MIT license, it's important to note that each individual model used within may be governed by its own licensing terms. We strongly advise you to review the respective licenses associated with each model before using them for commercial purposes.
+
+## Credits
+
+-   [TheBloke](https://huggingface.co/TheBloke) for all the quantized models in the demo
+-   [turboderp](https://github.com/turboderp/exllama) for ExLlama
+-   Meta Team for the [LLaMa2](https://ai.meta.com/llama/) Model
+-   HuggingFace team for the [Transformers](https://huggingface.co/docs/transformers/llm_tutorial) library and open source models
+-   Mistral AI Team for [Mistral7B](https://mistral.ai/news/announcing-mistral-7b/) Model
+-   Georgi Gerganov for [LLaMaCpp](https://github.com/ggerganov/llama.cpp)
+-   Liu HaoTian for the [LLaVa](https://github.com/haotian-liu/LLaVA) Model and Library
+-   [Coqui-AI](https://github.com/coqui-ai/TTS) for the xTTS Model
+-   [OpenAI](https://huggingface.co/openai/whisper-large-v3) for Open Sourcing Whisper v3
+-   [chromadb](https://github.com/chroma-core/chroma) for AI-native open-source embedding database
+-   [instructor](https://huggingface.co/hku-nlp/instructor-large) open source embedding model
