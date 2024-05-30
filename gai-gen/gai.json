@@ -1,6 +1,9 @@
 {
     "gen": {
-        "default": "mistral7b-exllama",
+        "default": {
+            "ttt": "mistral7b-exllama",
+            "tts": "xtts-2"
+        },
         "gpt-4": {
             "type": "ttt",
             "engine": "OpenAI_TTT",

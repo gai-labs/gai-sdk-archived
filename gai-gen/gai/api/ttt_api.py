@@ -40,8 +40,8 @@ async def startup_event():
     # Perform initialization here
     try:
         gai_config = get_gen_config()
-        if "default" in gai_config["gen"]:
-            default_generator_name = gai_config["gen"]["default"]
+        default_generator_name = gai_config["gen"]["default"]["ttt"]
+            
         if DEFAULT_GENERATOR:
             default_generator_name = DEFAULT_GENERATOR
         gen.load(default_generator_name)
