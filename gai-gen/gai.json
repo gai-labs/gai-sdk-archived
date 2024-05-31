@@ -5,7 +5,8 @@
             "tts": "xtts-2",
             "stt": "whisper-transformers",
             "itt": "llava-transformers",
-            "tti": "openai-dalle3"
+            "tti": "openai-dalle3",
+            "rag": "openai-ada-rag"
         },
         "gpt-4": {
             "type": "ttt",
@@ -214,6 +215,23 @@
             },
             "model_path": "models/instructor-large",
             "device": "cuda",
+            "chunks": {
+                "size": 1000,
+                "overlap": 100,
+                "path": "chunks"
+            }
+        },
+        "openai-ada-rag": {
+            "type": "rag",
+            "chromadb": {
+                "path": "rag/chromadb",
+                "n_results": 3
+            },
+            "sqlite": {
+                "path": "rag/gai-rag.db"
+            },
+            "engine": "OpenAIADA_EMBEDDING",
+            "api_key": "OPENAI_API_KEY",
             "chunks": {
                 "size": 1000,
                 "overlap": 100,

@@ -1,1 +1,1 @@
-curl -X DELETE http://localhost:12031/gen/v1/rag/collection/demo
+curl -X DELETE http://localhost:12036/gen/v1/rag/collection/demo

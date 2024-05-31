@@ -1,4 +1,4 @@
-curl -X POST 'http://localhost:12031/gen/v1/rag/collection/demo/document_exists' \
+curl -X POST 'http://localhost:12036/gen/v1/rag/collection/demo/document_exists' \
     -H 'accept: application/json' \
     -H 'Content-Type: multipart/form-data' \
     -s \

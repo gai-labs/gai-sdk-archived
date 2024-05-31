@@ -4,10 +4,10 @@ from gai.gen.rag.dalc.RAGVSRepository import RAGVSRepository
 import torch
 import gc
 from tqdm import tqdm
-from chromadb.utils.embedding_functions import InstructorEmbeddingFunction
+from chromadb.utils.embedding_functions import InstructorEmbeddingFunction, OpenAIEmbeddingFunction
 from gai.common.utils import get_gen_config, get_app_path
 import threading
-from gai.common import logging, file_utils
+from gai.common import logging, file_utils, generators_utils
 from gai.gen.rag.dalc.RAGDBRepository import RAGDBRepository
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -17,26 +17,29 @@ from gai.gen.rag.dalc.Base import Base
 
 class RAG:
 
-    def __init__(self, status_publisher=None, in_memory=True):
+    def __init__(self, status_publisher=None, in_memory=True, generator_name="rag"):
 
         # Generator config
-        self.generator_name = "rag"
-        self.config = get_gen_config()["gen"]["rag"]
+        self.generator_name = generator_name
+        self.config = generators_utils.load_generators_config()[generator_name]
         app_path = get_app_path()
-        self.model_path = os.path.join(app_path, self.config["model_path"])
-        if (os.environ.get("RAG_MODEL_PATH")):
-            model_path = os.environ["RAG_MODEL_PATH"]
-            self.model_path = os.path.join(app_path, model_path)
+
+        # local embedding model
+        if generator_name=="rag":
+            self.model_path = os.path.join(app_path, self.config["model_path"])
+            if (os.environ.get("RAG_MODEL_PATH")):
+                model_path = os.environ["RAG_MODEL_PATH"]
+                self.model_path = os.path.join(app_path, model_path)
+            self.device = self.config["device"]
+
         self.n_results = self.config["chromadb"]["n_results"]
-        self.device = self.config["device"]
         
         # vector store config
         self.vs_repo = RAGVSRepository.New(in_memory)
         
         # document store config
-        config = get_gen_config()["gen"]["rag"]
         app_path = get_app_path()
-        sqlite_path = os.path.join(app_path, config["sqlite"]["path"])
+        sqlite_path = os.path.join(app_path, self.config["sqlite"]["path"])
         if in_memory:
             sqlite_path = ":memory:"
         sqlite_string = f'sqlite:///{sqlite_path}' 
@@ -55,7 +58,13 @@ class RAG:
 
     # Load Instructor model
     def load(self):
-        self.vs_repo._ef = InstructorEmbeddingFunction(self.model_path, device=self.device)
+        if self.generator_name == "openai-ada-rag":
+            self.vs_repo._ef = OpenAIEmbeddingFunction(
+                api_key=os.environ["OPENAI_API_KEY"],
+                model_name="text-embedding-ada-002"
+                )
+        else:            
+            self.vs_repo._ef = InstructorEmbeddingFunction(self.model_path, device=self.device)
 
     def unload(self):
         try:
@@ -393,8 +402,18 @@ class RAG:
         return self.db_repo.get_document_header(collection_name, document_id)
 
     # This function will only update the document header and not its chunk group.
-    def update_document_header(self,collection_name, document_id, document):
-        return self.db_repo.update_document_header(collection_name, document_id, document)
+    def update_document_header(self,collection_name, document_id, **document):
+        return self.db_repo.update_document_header(
+            collection_name=collection_name, 
+            document_id=document_id, 
+            title=document.get('Title',None),
+            source=document.get('Source',None),
+            abstract=document.get('Abstract',None),
+            authors=document.get('Authors',None),
+            publisher=document.get('Publisher',None),
+            published_date=document.get('Published_date',None),
+            comments=document.get('Comments',None),
+            keywords=document.get('Keywords',None))
 
     # This function will delete the file and its chunks
     def delete_document(self,collection_name, document_id):

@@ -202,8 +202,8 @@ class RAGDBRepository:
             self.session.close()
 
     def update_document_header(self, 
-                document_id, 
                 collection_name, 
+                document_id, 
                 title=None, 
                 source=None, 
                 abstract=None,

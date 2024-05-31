@@ -62,13 +62,19 @@ def get_in_memory():
         memory = memory.lower() != "false"
     return memory
 
-rag = RAG(in_memory=get_in_memory())
+# Initialise Generator
+from gai.common.utils import get_gen_config
+DEFAULT_GENERATOR=os.getenv("DEFAULT_GENERATOR",None)
+gai_config = get_gen_config()
+default_generator_name = gai_config["gen"]["default"]["rag"]
+if DEFAULT_GENERATOR:
+    default_generator_name = DEFAULT_GENERATOR
+rag = RAG(in_memory=get_in_memory(), generator_name=default_generator_name)
 
 # STARTUP
 async def startup_event():
     # Perform initialization here
     try:
-        # RAG does not use "default" model
         rag.load()
     except Exception as e:
         logger.error(f"Failed to load default model: {e}")
@@ -397,16 +403,17 @@ class UpdateDocumentRequest(BaseModel):
     Publisher: str = None
     PublishedDate: str = None
     Comments: str = None
+    Keywords: str = None
 @app.put("/gen/v1/rag/collection/{collection_name}/document/{document_id}")
 async def update_document_header(collection_name, document_id, req: UpdateDocumentRequest = Body(...)):
     try:
         doc = rag.get_document_header(collection_name=collection_name, document_id=document_id)
         if doc is None:
-            logger.warning(f"Document with Id={req.Id} not found.")
+            logger.warning(f"Document with collection_name={collection_name} document_id={document_id} not found.")
             # Bypass the error handler and return a 404 directly
-            raise DocumentNotFoundException(req.Id)
+            raise DocumentNotFoundException(document_id)
                 
-        updated_doc = rag.update_document_header(collection_name=collection_name, document_id=document_id, document=req)
+        updated_doc = rag.update_document_header(collection_name, document_id, **req.dict())
         return JSONResponse(status_code=200, content={
             "message": "Document updated successfully",
             "document": updated_doc
@@ -531,4 +538,4 @@ async def get_document_chunk_async(collection_name,chunk_id):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=12031)
+    uvicorn.run(app, host="0.0.0.0", port=12036)
