@@ -10,19 +10,19 @@ class Gaigen:
     __instance = None       # singleton
 
     @staticmethod
-    def GetInstance():
+    def GetInstance(config_path=None):
         """Static method to access this singleton class's instance."""
         if Gaigen.__instance == None:
-            Gaigen()
+            Gaigen(config_path)
         return Gaigen.__instance
 
-    def __init__(self):
+    def __init__(self,config_path):
         """Virtually private constructor."""
         if Gaigen.__instance is not None:
             raise Exception(
                 "Gaigen: This class is a singleton! Access using GetInstance().")
         else:
-            self.config = generators_utils.load_generators_config()
+            self.config = generators_utils.load_generators_config(config_path)
             self.generator_name = None
             self.generator = None
             # for thread safety, using Semaphore allows for easier upgrade to support multiple generators in the future
@@ -60,6 +60,9 @@ class Gaigen:
         elif generator_type == "itt":
             from gai.gen.itt import ITT
             self.generator = ITT(generator_name=generator_name)
+        elif generator_type == "tti":
+            from gai.gen.tti import TTI
+            self.generator = TTI(generator_name=generator_name,generator_config=self.config[generator_name])
         elif generator_type == "rag":
             from gai.gen.rag import RAG
             self.generator = RAG(in_memory=in_memory)

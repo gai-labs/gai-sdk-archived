@@ -2,7 +2,10 @@
     "gen": {
         "default": {
             "ttt": "mistral7b-exllama",
-            "tts": "xtts-2"
+            "tts": "xtts-2",
+            "stt": "whisper-transformers",
+            "itt": "llava-transformers",
+            "tti": "openai-dalle3"
         },
         "gpt-4": {
             "type": "ttt",
@@ -192,6 +195,13 @@
                 "temperature": 0.2,
                 "max_new_tokens": 512
             }
+        },
+        "openai-dalle3": {
+            "type": "tti",
+            "engine": "OpenAIDALLE3_TTI",
+            "model_name": "OpenAI DALL-E 3",
+            "api_key": "OPENAI_API_KEY",
+            "output_type": "bytes"
         },
         "rag": {
             "type": "rag",

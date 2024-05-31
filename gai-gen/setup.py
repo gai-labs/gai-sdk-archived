@@ -73,6 +73,7 @@ setup(
         "ITT2": parse_requirements("requirements_itt2.txt"),
         'STT': parse_requirements("requirements_stt.txt"),
         'TTS': parse_requirements("requirements_tts.txt"),          
+        'TTI': parse_requirements("requirements_tti.txt"),
         'RAG': parse_requirements("requirements_rag.txt"),
         'TTC': parse_requirements("requirements_ttc.txt")
     },

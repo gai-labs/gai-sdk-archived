@@ -1,0 +1,7 @@
+openai==1.6.1
+python-dotenv
+httpx==0.24.0
+ipykernel==6.27.1
+uvicorn
+fastapi==0.109.2
+PyYAML

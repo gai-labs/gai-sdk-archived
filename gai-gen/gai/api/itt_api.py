@@ -27,15 +27,31 @@ semaphore = dependencies.configure_semaphore()
 from gai.gen import Gaigen
 gen = Gaigen.GetInstance()
 
-# Pre-load default model
-def preload_model():
+# STARTUP
+from gai.common.utils import get_gen_config
+DEFAULT_GENERATOR=os.getenv("DEFAULT_GENERATOR")
+async def startup_event():
+    # Perform initialization here
     try:
-        # RAG does not use "default" model
-        gen.load("llava-transformers")
+        gai_config = get_gen_config()
+        default_generator_name = gai_config["gen"]["default"]["itt"]
+        if DEFAULT_GENERATOR:
+            default_generator_name = DEFAULT_GENERATOR
+        gen.load(default_generator_name)
     except Exception as e:
-        logger.error(f"Failed to preload default model: {e}")
+        logger.error(f"Failed to load default model: {e}")
         raise e
-preload_model()
+app.add_event_handler("startup", startup_event)
+
+# # Pre-load default model
+# def preload_model():
+#     try:
+#         # RAG does not use "default" model
+#         gen.load("llava-transformers")
+#     except Exception as e:
+#         logger.error(f"Failed to preload default model: {e}")
+#         raise e
+# preload_model()
 
 ### ----------------- ITT ----------------- ###
 class ImageToTextRequest(BaseModel):

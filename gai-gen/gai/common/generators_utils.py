@@ -17,8 +17,8 @@ def filter_params(model_params,whitelist_params):
     return filtered_params
 
 # A simple utility to load generators config.
-def load_generators_config():
-    return get_gen_config()["gen"]
+def load_generators_config(file_path=None):
+    return get_gen_config(file_path)["gen"]
 
 # This is used to compress a list into a smaller string to be passed as a single USER message to the prompt template.
 def chat_list_to_string(messages):
