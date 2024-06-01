@@ -104,8 +104,23 @@
             "type": "ttt",
             "model_name": "Mistral7B-LlamaCpp",
             "engine": "LlamaCpp_TTT",
-            "model_path": "models/Mistral-7B-Instruct-v0.1-GGUF",
-            "model_basename": "mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+            "model_path": "models/Mistral-7B-Instruct-v0.3-GGUF",
+            "model_basename": "Mistral-7B-Instruct-v0.3-Q4_K_M.gguf",
+            "max_seq_len": 8192,
+            "stopping_words": [],
+            "hyperparameters": {
+                "max_tokens": 100,
+                "temperature": 1.31,
+                "top_k": 49,
+                "top_p": 0.14
+            }
+        },
+        "llama3-llamacpp": {
+            "type": "ttt",
+            "model_name": "Llama3-LlamaCpp",
+            "engine": "LlamaCpp_TTT",
+            "model_path": "models/LLaMA3-iterative-DPO-final-GGUF",
+            "model_basename": "LLaMA3-iterative-DPO-final-Q4_K_M.gguf",
             "max_seq_len": 8192,
             "stopping_words": [],
             "hyperparameters": {

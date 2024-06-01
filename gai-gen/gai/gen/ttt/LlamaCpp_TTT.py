@@ -1,8 +1,7 @@
 from llama_cpp import Llama
-from llama_cpp._utils import suppress_stdout_stderr
 from gai.common import generators_utils, logging
 from gai.common.utils import get_app_path
-import os,sys,torch,gc,re
+import os,torch,gc
 from openai.types.chat.chat_completion import ChatCompletion, ChatCompletionMessage, Choice , CompletionUsage
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, Choice as ChunkChoice, ChoiceDelta
 from uuid import uuid4
@@ -53,8 +52,9 @@ class LlamaCpp_TTT:
 
     def load(self):
         logger.info(f"exllama_engine.load: Loading model from {self.model_filepath}")
-        with suppress_stdout_stderr():
-            self.client = Llama(model_path=self.model_filepath, verbose=False, n_ctx=self.gai_config["max_seq_len"])
+        self.client = Llama(model_path=self.model_filepath, verbose=False, n_ctx=self.gai_config["max_seq_len"])
+        self.client.verbose=False
+        
         return self
 
     def unload(self):
@@ -75,8 +75,7 @@ class LlamaCpp_TTT:
 
     def _generating(self,prompt, **model_params):
         response = None
-        with suppress_stdout_stderr():
-            response = self.client(prompt,**model_params)
+        response = self.client(prompt,**model_params)
 
         # Prepare response
         id = str(uuid4())
@@ -119,14 +118,13 @@ class LlamaCpp_TTT:
             )
         return response
 
-    def _streaming(self,prompt,ai_role="ASSISTANT",**model_params):
+    def _streaming(self,prompt,**model_params):
         id = str(uuid4())
-        with suppress_stdout_stderr():
-            for chunk in self.client(prompt,stream=True,**model_params):
-                yield self.parse_chunk_output(
-                    id=id,
-                    output=chunk['choices'][0]['text']
-                )
+        for chunk in self.client(prompt,stream=True,**model_params):
+            yield self.parse_chunk_output(
+                id=id,
+                output=chunk['choices'][0]['text']
+            )
         yield self.parse_chunk_output(
             id=id, 
             output='', 

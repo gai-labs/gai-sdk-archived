@@ -22,7 +22,8 @@ class Gaigen:
             raise Exception(
                 "Gaigen: This class is a singleton! Access using GetInstance().")
         else:
-            self.config = generators_utils.load_generators_config(config_path)
+            self.config_path=config_path
+            self.config = generators_utils.load_generators_config(self.config_path)
             self.generator_name = None
             self.generator = None
             # for thread safety, using Semaphore allows for easier upgrade to support multiple generators in the future
@@ -50,7 +51,7 @@ class Gaigen:
         generator_type = self.config[generator_name]["type"]
         if generator_type == "ttt":
             from gai.gen.ttt import TTT
-            self.generator = TTT(generator_name=generator_name)
+            self.generator = TTT(generator_name=generator_name,config_path=self.config_path)
         elif generator_type == "tts":
             from gai.gen.tts import TTS
             self.generator = TTS(generator_name=generator_name)
