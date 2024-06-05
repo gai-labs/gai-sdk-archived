@@ -2,13 +2,13 @@ from typing import List
 from gai.common import logging, generators_utils
 from gai.common.generators_utils import word_streamer
 logger = logging.getLogger(__name__)
+from gai.gen.GenBase import GenBase
 
-class TTT:
+class TTT(GenBase):
 
     # Register the engines
     def __init__(self,generator_name, config_path=None):
-        self.generator_name = generator_name
-        self.config = generators_utils.load_generators_config(config_path)[generator_name]
+        super().__init__(generator_name, config_path)
 
         if self.config['engine'] == 'ExLlama_TTT':
             from gai.gen.ttt.ExLlama_TTT import ExLlama_TTT

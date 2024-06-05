@@ -8,23 +8,26 @@ logger = getLogger(__name__)
 class TTSClient(ClientBase):
 
     def __init__(self, config_path=None):
-        super().__init__(config_path)
-        logger.debug(f'base_url={self.base_url}')
+        super().__init__(category_name="tts",config_path=config_path)
 
-    def __call__(self, input, generator="xtts-2", stream=True, **generator_params):
-        if generator == "openai-tts-1":
-            return self.openai_tts(input, **generator_params)
-
+    def __call__(self, type, input, generator_name=None, stream=True, **generator_params):
+        if generator_name:
+            raise Exception("Customed generator_name not supported.")
         if not input:
             raise Exception("The parameter 'input' is required.")
-        data = {
-            "model": generator,
-            "input": input,
-            "stream": stream,
-            **generator_params
-        }
-        response = http_post(self._gen_url(generator=generator), data)
-        return response
+
+        if type == "openai":
+            return self.openai_tts(input=input, **generator_params)
+        if type == "gai":
+            data = {
+                "input": input,
+                "stream": stream,
+                **generator_params
+            }
+            response = http_post(self._get_gai_url(), data)
+            return response
+
+        raise Exception("Generator type not supported.")
 
     def openai_tts(self, input, **generator_params):
         import os

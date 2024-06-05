@@ -66,6 +66,8 @@ async def _text_to_image(request: TextToImageRequest=Body(...)):
 
 
 if __name__ == "__main__":
-    import uvicorn
-    #uvicorn.run(app, host="0.0.0.0", port=12031, workers=4)
-    uvicorn.run(app, host="0.0.0.0", port=12031)
+    print("This service is disabled. Please use dockerfile.TTI instead.")
+    
+    # import uvicorn
+    # #uvicorn.run(app, host="0.0.0.0", port=12031, workers=4)
+    # uvicorn.run(app, host="0.0.0.0", port=12035)

@@ -1,8 +1,15 @@
-default_generator: mistral7b-exllama
-#gai_url: "http://localhost:12031"
-gai_url: "https://gaiaio.ai/api"
+gai_url: "https://localhost:12043"
+#gai_url: "https://gaiaio.ai/api"
 generators:
-    mistral7b-exllama:
+    default:
+        ttt: ttt-openai
+        ttt-long: ttt-long-claude
+        stt: stt-openai
+        tts: tts-openai
+        itt: itt-openai
+        rag: rag-openai
+
+    ttt-gai:
         type: ttt
         url: "/gen/v1/chat/completions"
         whitelist:
@@ -32,7 +39,29 @@ generators:
             beam_length: 1
         env:
             gai_api_key: "gai_api_key"
-    mistral7b_128k-exllama:
+
+    ttt-openai:
+        type: ttt
+        whitelist:
+            - max_tokens
+            - temperature
+            - top_p
+            - presence_penalty
+            - frequency_penalty
+            - stop
+            - logit_bias
+            - n
+            - stream
+            - openai_api_key
+        default:
+            temperature: 1.2
+            top_p: 0.15
+            top_k: 50
+            max_tokens: 1000
+        env:
+            OPENAI_API_KEY: "OPENAI_API_KEY"
+
+    ttt-long-gai:
         type: ttt
         url: "/gen/v1/longchat/completions"
         whitelist:
@@ -62,27 +91,8 @@ generators:
             beam_length: 1
         env:
             gai_api_key: "gai_api_key"
-    gpt-4:
-        type: ttt
-        whitelist:
-            - max_tokens
-            - temperature
-            - top_p
-            - presence_penalty
-            - frequency_penalty
-            - stop
-            - logit_bias
-            - n
-            - stream
-            - openai_api_key
-        default:
-            temperature: 1.2
-            top_p: 0.15
-            top_k: 50
-            max_tokens: 1000
-        env:
-            OPENAI_API_KEY: "OPENAI_API_KEY"
-    claude2-100k:
+
+    ttt-long-claude:
         type: ttt
         whitelist:
             - max_tokens_to_sample
@@ -96,22 +106,50 @@ generators:
             top_k: 50
             max_tokens_to_sample: 1000
         env:
-            anthropic_api_key: "anthropic_api_key"
-    whisper-transformers:
+            ANTHROPIC_API_KEY: "ANTHROPIC_API_KEY"
+
+    stt-gai:
         type: stt
         url: "/gen/v1/audio/transcriptions"
         env:
             gai_api_key: "gai_api_key"
-    xtts-2:
+    stt-openai:
+        type: stt
+        url: "/gen/v1/audio/transcriptions"
+        env:
+            OPENAI_API_KEY: "OPENAI_API_KEY"
+
+    tts-gai:
         type: tts
         url: "/gen/v1/audio/speech"
         env:
             gai_api_key: "gai_api_key"
-    llava-transformers:
+    tts-openai:
+        type: tts
+        url: "/gen/v1/audio/speech"
+        env:
+            OPENAI_API_KEY: "OPENAI_API_KEY"
+
+    itt-gai:
         type: itt
         url: "/gen/v1/vision/completions"
-    rag:
+        env:
+            gai_api_key: "gai_api_key"
+
+    itt-openai:
+        type: itt
+        url: "/gen/v1/vision/completions"
+        env:
+            OPENAI_API_KEY: "OPENAI_API_KEY"
+
+    rag-gai:
         type: rag
         url: "/gen/v1/rag"
         env:
             gai_api_key: "gai_api_key"
+
+    rag-openai:
+        type: rag
+        url: "/gen/v1/rag"
+        env:
+            OPENAI_API_KEY: "OPENAI_API_KEY"

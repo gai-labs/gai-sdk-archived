@@ -87,4 +87,4 @@ async def _image_to_text(request: ImageToTextRequest = Body(...)):
 if __name__ == "__main__":
     import uvicorn
     #uvicorn.run(app, host="0.0.0.0", port=12031, workers=4)
-    uvicorn.run(app, host="0.0.0.0", port=12031)
+    uvicorn.run(app, host="0.0.0.0", port=12034)

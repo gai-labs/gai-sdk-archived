@@ -1,0 +1,54 @@
+FROM kakkoii1337/cu118-cp310-base:1.0 AS base
+
+ARG CATEGORY=tti
+ARG DEBUG=1
+
+# Step 1: Install utils
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt/lists \
+    apt update -y && apt install -y git git-lfs ffmpeg python3-dev && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
+# Step 2: Create env variables
+ENV LD_LIBRARY_PATH="/usr/local/cuda-11.8/lib64:/usr/lib/wsl/lib:$LD_LIBRARY_PATH"
+ENV MODEL_PATH="/app/models"
+RUN echo '{"app_dir":"/app"}' > /root/.gairc
+
+# Step 3: Create mountpoint for models
+WORKDIR /app/models
+
+# Step 4: Install category specific requirements
+WORKDIR /app
+COPY "requirements_${CATEGORY}.txt" .
+RUN pip install pip==23.3.1
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements_${CATEGORY}.txt
+
+# Step 5: Install automatic1111/stable-diffusion-webui
+RUN --mount=type=cache,target=/root/.cache/pip \
+  git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git && \
+  cd stable-diffusion-webui && \
+  git reset --hard v1.9.3 && \
+  pip install -r requirements_versions.txt
+ENV ROOT=/app/stable-diffusion-webui
+COPY --from=download /repositories/ ${ROOT}/repositories/
+RUN mkdir ${ROOT}/interrogate && cp ${ROOT}/repositories/clip-interrogator/clip_interrogator/data/* ${ROOT}/interrogate
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install pyngrok xformers==0.0.26.post1 \
+  git+https://github.com/TencentARC/GFPGAN.git@8d2447a2d918f8eba5a4a01463fd48e45126a379 \
+  git+https://github.com/openai/CLIP.git@d50d76daa670286dd6cacf3bcd80b5e4823fc8e1 \
+  git+https://github.com/mlfoundations/open_clip.git@v2.20.0
+RUN apt-get -y install libgoogle-perftools-dev && apt-get clean
+ENV LD_PRELOAD=libtcmalloc.so
+
+WORKDIR ${ROOT}
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV CLI_ARGS=""
+EXPOSE 7860
+ENTRYPOINT ["/docker/entrypoint.sh"]
+CMD python -u webui.py --medram --xformers port 12035 ${CLI_ARGS}
+#CMD python -u webui.py --listen --port 7860 ${CLI_ARGS}
+
+#CMD python launch.py  --medram --xformers --listen --api --port 12035
+#CMD python launch.py  --medram --xformers port 12035
+

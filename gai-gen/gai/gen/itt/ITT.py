@@ -1,20 +1,24 @@
 from gai.common import logging, generators_utils
 logger = logging.getLogger(__name__)
+from gai.gen.GenBase import GenBase
 
-class ITT:
+class ITT(GenBase):
     
-    def __init__(self,generator_name):
-        self.generator_name = generator_name
-        self.config = generators_utils.load_generators_config()[generator_name]
+    def __init__(self,generator_name, config_path=None):
+        super().__init__(generator_name, config_path)
+
         if self.config['engine'] == 'Llava_ITT':
             from gai.gen.itt.Llava_ITT import Llava_ITT
             self.itt = Llava_ITT(self.config)
         elif self.config['engine'] == 'Vision_ITT':
             from gai.gen.itt.Vision_ITT import Vision_ITT
             self.itt = Vision_ITT(self.config)
+        elif self.config['engine'] == 'LlamaCpp_ITT':
+            from gai.gen.ttt.LlamaCpp_TTT import LlamaCpp_TTT
+            self.itt = LlamaCpp_TTT(self.config)
         else:
-            logger.error("Image to Speech engine not supported")
-            raise Exception("Image to Speech engine not supported")
+            logger.error("Image to Text engine not supported")
+            raise Exception("Image to Text engine not supported")
 
     def create(self,**model_params):
         # discard model parameter. Use constructor instead.

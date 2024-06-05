@@ -1,0 +1,9 @@
+[submodule "gai-gen/external/llama.cpp"]
+	path = gai-gen/external/llama.cpp
+	url = https://github.com/gai-labs/llama.cpp
+[submodule "gai-gen/external/stable-diffusion-webui"]
+	path = gai-gen/external/stable-diffusion-webui
+	url = https://github.com/automatic1111/stable-diffusion-webui
+[submodule "gai-gen/external/exllamav2"]
+	path = gai-gen/external/exllamav2
+	url = https://github.com/turboderp/exllamav2

@@ -54,22 +54,22 @@ class Gaigen:
             self.generator = TTT(generator_name=generator_name,config_path=self.config_path)
         elif generator_type == "tts":
             from gai.gen.tts import TTS
-            self.generator = TTS(generator_name=generator_name)
+            self.generator = TTS(generator_name=generator_name,config_path=self.config_path)
         elif generator_type == "stt":
             from gai.gen.stt import STT
-            self.generator = STT(generator_name=generator_name)
+            self.generator = STT(generator_name=generator_name,config_path=self.config_path)
         elif generator_type == "itt":
             from gai.gen.itt import ITT
-            self.generator = ITT(generator_name=generator_name)
+            self.generator = ITT(generator_name=generator_name,config_path=self.config_path)
         elif generator_type == "tti":
             from gai.gen.tti import TTI
-            self.generator = TTI(generator_name=generator_name,generator_config=self.config[generator_name])
+            self.generator = TTI(generator_name=generator_name,config_path=self.config_path)
         elif generator_type == "rag":
             from gai.gen.rag import RAG
-            self.generator = RAG(in_memory=in_memory)
+            self.generator = RAG(in_memory=in_memory,config_path=self.config_path)
         elif generator_type == "ttc":
             from gai.gen.ttc.TTC import TTC
-            self.generator = TTC(generator_name=generator_name)
+            self.generator = TTC(generator_name=generator_name,config_path=self.config_path)
         else:
             logger.error(
                 f"Gaigen.load: The generator_type {generator_type} is not supported.")

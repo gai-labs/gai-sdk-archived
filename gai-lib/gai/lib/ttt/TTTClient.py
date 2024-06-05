@@ -13,10 +13,25 @@ from gai.lib.ClientBase import ClientBase
 class TTTClient(ClientBase):
 
     def __init__(self, config_path=None):
-        super().__init__(config_path)
-        logger.debug(f'base_url={self.base_url}')
+        super().__init__(category_name="ttt",config_path=config_path)
 
-    def api(self, generator="mistral7b-exllama", messages=None, stream=True, **generator_params):
+    def __call__(self, type, generator_name=None, messages=None, stream=True, **generator_params):
+        if generator_name:
+            raise Exception("Customed generator_name not supported.")
+
+        # If generator is openai-gpt4 or claude2-100k, 
+        # use the respective API client instead of generator service.
+        if type == "openai":
+            return self.gpt_4(messages=messages, stream=stream, **generator_params)
+        if type == "anthropic":
+            return self.claude_2(messages=messages, stream=stream, **generator_params)
+        if type == "gai":
+            return self.api(messages=messages, stream=stream, **generator_params)
+
+        raise Exception("Generator type not supported.")
+
+
+    def api(self, messages=None, stream=True, **generator_params):
         logger.debug(f'TTTClient.api: messages={messages}')
 
         if not messages:
@@ -25,14 +40,9 @@ class TTTClient(ClientBase):
         if isinstance(messages, str):
             messages = chat_string_to_list(messages)
 
-        if not generator:
-            generator = self.config["default_generator"]
-
-        data = {
-            "model": generator,
+        data = { 
             "messages": messages,
             "stream": stream,
-            **self.config["generators"][generator]["default"],
             **generator_params
         }
 
@@ -41,16 +51,13 @@ class TTTClient(ClientBase):
                 yield ChunkWrapper(chunk)
 
         try:
-            url = self._gen_url(generator)
-            response = http_post(url, data)
+            response = http_post(self._get_gai_url(), data)
         except ApiException as he:
 
-            # Switch to Mistral7b 128k context size
+            # Switch to long context
             if he.code == "context_length_exceeded":
                 try:
-                    generator = "mistral7b_128k-exllama"
-                    data["model"] = generator
-                    url = self._gen_url(generator)
+                    url = self._get_gai_url("url")
                     response = http_post(url, data)
                 except Exception as e:
                     logger.error(f"TTTClient.api: gaigen error={e}")
@@ -76,13 +83,8 @@ class TTTClient(ClientBase):
             return response
         return streamer(response)
 
-    def __call__(self, generator=None, messages=None, stream=True, **generator_params):
-        if generator == "gpt-4":
-            return self.gpt_4(messages=messages, stream=stream, **generator_params)
-        elif generator == "claude2-100k":
-            return self.claude_2(messages=messages, stream=stream, **generator_params)
-        return self.api(generator, messages, stream, **generator_params)
 
+    # Call GPT-4 API
     def gpt_4(self, messages=None, stream=True, **generator_params):
         import os
 
@@ -137,6 +139,7 @@ class TTTClient(ClientBase):
             return response
         return streamer(response)
 
+    # Call Claude API
     def claude_2(self, messages=None, stream=True, **generator_params):
         # import os
         # from anthropic import Anthropic

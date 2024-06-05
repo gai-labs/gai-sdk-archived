@@ -117,18 +117,18 @@ class Llava_ITT:
         conv.append_message(conv.roles[1], None)
         return conv
     
-    def _gen(self, text, image_file, **model_params):
-        if not self.model:
-            self.load()
-        image_tensor = self._load_image_tensor(image_file)
-        conv = self._start_conversation(text,image_tensor)
-        prompt = conv.get_prompt()
+    # def _gen(self, text, image_file, **model_params):
+    #     if not self.model:
+    #         self.load()
+    #     image_tensor = self._load_image_tensor(image_file)
+    #     conv = self._start_conversation(text,image_tensor)
+    #     prompt = conv.get_prompt()
 
-        input_ids = tokenizer_image_token(prompt, self.tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).to(self.model.device)
-        stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-        keywords = [stop_str]
-        stopping_criteria = KeywordsStoppingCriteria(keywords, self.tokenizer, input_ids)
-        return input_ids, image_tensor, stopping_criteria
+    #     input_ids = tokenizer_image_token(prompt, self.tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).to(self.model.device)
+    #     stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
+    #     keywords = [stop_str]
+    #     stopping_criteria = KeywordsStoppingCriteria(keywords, self.tokenizer, input_ids)
+    #     return input_ids, image_tensor, stopping_criteria
     
     def _generating(self, input_ids, image_tensor, stopping_criteria, **model_params):
         model_params = {**self.gai_config["hyperparameters"], **model_params}

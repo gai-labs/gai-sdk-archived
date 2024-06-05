@@ -101,8 +101,8 @@ class ExLlama_TTT:
         self.tokenizer = None
         self.client = None
         self.prompt = None
-        gc.collect()
         torch.cuda.empty_cache()
+        gc.collect()
 
     def token_count(self, text):
         if self.tokenizer is None:
@@ -599,97 +599,97 @@ class ExLlama_TTT:
         raise Exception(f'ExLlama_TTT._generating: Response type cannot be classified. output: {text}')
 
 
-    def _apply_template(self, prompt: List):
-        prompt = generators_utils.chat_list_to_string(prompt)
-        return prompt
+    # def _apply_template(self, prompt: List):
+    #     prompt = generators_utils.chat_list_to_string(prompt)
+    #     return prompt
 
     def _remove_template(self, output: str):
         output = re.split('\n.+:', output)[-1].strip()
         return output
 
-    def _apply_tools_message(self, messages: List, **model_params):
+    # def _apply_tools_message(self, messages: List, **model_params):
 
-        # Check if tools are required
-        if "tools" in model_params and model_params["tools"] is not None:
+    #     # Check if tools are required
+    #     if "tools" in model_params and model_params["tools"] is not None:
 
-            tool_choice = model_params.get("tool_choice","auto")
+    #         tool_choice = model_params.get("tool_choice","auto")
 
-            # For now, we will implement only for "auto"
-            if tool_choice == "auto":
+    #         # For now, we will implement only for "auto"
+    #         if tool_choice == "auto":
 
-                # Create a system message to introduce the tools
-                system_message = {"role":"system","content":
-                """
-                system:
+    #             # Create a system message to introduce the tools
+    #             system_message = {"role":"system","content":
+    #             """
+    #             system:
 
 
-                You will always begin your interaction by asking yourself if the user's message is a message that requires a tool response or a text response.
+    #             You will always begin your interaction by asking yourself if the user's message is a message that requires a tool response or a text response.
                                 
-                DEFINITIONS:
-                1. A tool response is based on the following JSON format:
-                        <tool>
-                        {{
-                            'function': {{
-                                'name': ...,
-                                'arguments': ...
-                            }}
-                        }}
-                        </tool>
+    #             DEFINITIONS:
+    #             1. A tool response is based on the following JSON format:
+    #                     <tool>
+    #                     {{
+    #                         'function': {{
+    #                             'name': ...,
+    #                             'arguments': ...
+    #                         }}
+    #                     }}
+    #                     </tool>
                 
-                And the tool is chosen from the following <tools> list:
-                        <tools>
-                        {tools}
-                        </tools>.
+    #             And the tool is chosen from the following <tools> list:
+    #                     <tools>
+    #                     {tools}
+    #                     </tools>.
                     
-                2. A text response is based on the following JSON format:
-                        <text>
-                        {{
-                            'text': ...
-                        }}
-                        </text>
+    #             2. A text response is based on the following JSON format:
+    #                     <text>
+    #                     {{
+    #                         'text': ...
+    #                     }}
+    #                     </text>
                 
-                STEPS:
-                1. Think about the nature of the user's message.
-                    * Is the user's message a question that I can answer factually within my knowledge domain?
-                    * Are there any dependencies to external factors that I need to consider before answering the user's question?
-                    * What are the tools I have at my disposal to help me answer the user's question? 
-                2. If the user's message requires a tool response, pick the most suitable tool response from <tools>. 
-                    * I can refer to the "description" field of each tool to help me decide.
-                    * For example, if I need to search for real-time information, I can use the "gg" tool and if I know where to find the information, I can use the "scrape" tool.
-                3. If the user's message does not require a tool response, provide a text response to the user.
+    #             STEPS:
+    #             1. Think about the nature of the user's message.
+    #                 * Is the user's message a question that I can answer factually within my knowledge domain?
+    #                 * Are there any dependencies to external factors that I need to consider before answering the user's question?
+    #                 * What are the tools I have at my disposal to help me answer the user's question? 
+    #             2. If the user's message requires a tool response, pick the most suitable tool response from <tools>. 
+    #                 * I can refer to the "description" field of each tool to help me decide.
+    #                 * For example, if I need to search for real-time information, I can use the "gg" tool and if I know where to find the information, I can use the "scrape" tool.
+    #             3. If the user's message does not require a tool response, provide a text response to the user.
 
-                CONSTRAINTS:        
-                1. You can only provide a tool response or a text response and nothing else.
-                2. When providing a tool response, respond only in JSON and only pick from <tools>. That means, begin your message with a curly bracket ' and end your message with a curly bracket '. Do not respond with anything else.
-                3. Remember, do not invent your own tools. You can only pick from <tools>.
-                """}
-                tools = model_params["tools"]
-                try:
-                    system_message["content"] = system_message["content"].format(
-                        tools=tools)
-                except Exception as e:
-                    logger.error(
-                        f"ExLlama_TTT._apply_tools_message: Error applying tools message: {e}")
-                    raise Exception(
-                        "ExLlama_TTT._apply_tools_message: Error applying tools template.")
+    #             CONSTRAINTS:        
+    #             1. You can only provide a tool response or a text response and nothing else.
+    #             2. When providing a tool response, respond only in JSON and only pick from <tools>. That means, begin your message with a curly bracket ' and end your message with a curly bracket '. Do not respond with anything else.
+    #             3. Remember, do not invent your own tools. You can only pick from <tools>.
+    #             """}
+    #             tools = model_params["tools"]
+    #             try:
+    #                 system_message["content"] = system_message["content"].format(
+    #                     tools=tools)
+    #             except Exception as e:
+    #                 logger.error(
+    #                     f"ExLlama_TTT._apply_tools_message: Error applying tools message: {e}")
+    #                 raise Exception(
+    #                     "ExLlama_TTT._apply_tools_message: Error applying tools template.")
 
-                # Insert the system message immediately before the last user_message.                
-                ai_placeholder = None
-                if has_ai_placeholder(messages):
-                    ai_placeholder = messages.pop()
-                user_message = messages.pop()
-                messages.append(system_message)
-                messages.append(user_message)
-                if ai_placeholder:
-                    messages.append(ai_placeholder)
+    #             # Insert the system message immediately before the last user_message.                
+    #             ai_placeholder = None
+    #             if has_ai_placeholder(messages):
+    #                 ai_placeholder = messages.pop()
+    #             user_message = messages.pop()
+    #             messages.append(system_message)
+    #             messages.append(user_message)
+    #             if ai_placeholder:
+    #                 messages.append(ai_placeholder)
     
-        return messages
+    #     return messages
 
     def create(self, messages, **model_params):
         if isinstance(messages,str):
-            messages = chat_string_to_list(messages)
-        messages = self._apply_tools_message(messages, **model_params)
-        self.prompt = self._apply_template(messages)
+            messages = generators_utils.chat_string_to_list(messages)
+        messages = generators_utils.apply_tools_message(messages, **model_params)
+        self.prompt = generators_utils.chat_list_to_string(messages)
 
         if not self.prompt:
             raise Exception("Exllama_TTT: prompt is required")

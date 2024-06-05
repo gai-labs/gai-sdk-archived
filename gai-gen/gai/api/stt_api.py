@@ -59,7 +59,7 @@ from fastapi import Form, File, UploadFile
 import numpy as np
 
 @app.post("/gen/v1/audio/transcriptions")
-async def _speech_to_text(model: str = Form("whisper-transformers"),file: UploadFile = File(...)):
+async def _speech_to_text(file: UploadFile = File(...)):
     try:
         print(f"Received file with filename: {file.filename} {file.content_type}")
         content = await file.read()
@@ -89,4 +89,4 @@ async def _speech_to_text(model: str = Form("whisper-transformers"),file: Upload
 if __name__ == "__main__":
     import uvicorn
     #uvicorn.run(app, host="0.0.0.0", port=12031, workers=4)
-    uvicorn.run(app, host="0.0.0.0", port=12031)
+    uvicorn.run(app, host="0.0.0.0", port=12033)

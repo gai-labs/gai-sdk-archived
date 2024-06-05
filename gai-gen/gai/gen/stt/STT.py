@@ -2,11 +2,12 @@ from gai.gen.stt.OpenAIWhisper_STT import OpenAIWhisper_STT
 from gai.gen.stt.LocalWhisper_STT import LocalWhisper_STT
 from gai.common import logging, generators_utils
 logger = logging.getLogger(__name__)
+from gai.gen.GenBase import GenBase
 
-class STT:
-    def __init__(self,generator_name):
-        self.generator_name = generator_name
-        self.config = generators_utils.load_generators_config()[generator_name]
+class STT(GenBase):
+    def __init__(self,generator_name, config_path=None):
+        super().__init__(generator_name, config_path)
+
         if self.config['engine'] == 'OpenAIWhisper_STT':
             self.transcriptions = OpenAIWhisper_STT(self.config)
         elif self.config['engine'] == 'LocalWhisper_STT':

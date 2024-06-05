@@ -41,7 +41,6 @@ async def startup_event():
     try:
         gai_config = get_gen_config()
         default_generator_name = gai_config["gen"]["default"]["ttt"]
-            
         if DEFAULT_GENERATOR:
             default_generator_name = DEFAULT_GENERATOR
         gen.load(default_generator_name)
@@ -72,7 +71,6 @@ class MessageRequest(BaseModel):
     role: str
     content: str
 class ChatCompletionRequest(BaseModel):
-    model: Optional[str] = "mistral7b-exllama"
     messages: List[MessageRequest]
     stream: Optional[bool] = False
     class Config:
@@ -80,17 +78,13 @@ class ChatCompletionRequest(BaseModel):
     
 @app.post("/gen/v1/chat/completions")
 async def _text_to_text(request: ChatCompletionRequest = Body(...)):
+
     response=None
     try:
-        model = request.model
         messages = request.messages
         model_params = request.model_dump(exclude={"model", "messages","stream"})  
         stream = request.stream
-        if model != gen.generator_name:
-            raise Exception("model_service_mismatch")
-
         response = gen.create(
-            model=model,
             messages=[message.model_dump() for message in messages],
             stream=stream,
             **model_params

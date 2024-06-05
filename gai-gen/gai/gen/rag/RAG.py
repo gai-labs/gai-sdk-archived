@@ -14,14 +14,13 @@ from sqlalchemy.orm import sessionmaker
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 from gai.gen.rag.dalc.Base import Base
+from gai.gen.GenBase import GenBase
 
-class RAG:
+class RAG(GenBase):
 
-    def __init__(self, status_publisher=None, in_memory=True, generator_name="rag"):
+    def __init__(self, generator_name="rag",status_publisher=None, in_memory=True,  config_path=None):
+        super().__init__(generator_name, config_path)
 
-        # Generator config
-        self.generator_name = generator_name
-        self.config = generators_utils.load_generators_config()[generator_name]
         app_path = get_app_path()
 
         # local embedding model

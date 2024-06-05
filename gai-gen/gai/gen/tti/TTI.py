@@ -2,15 +2,15 @@ from typing import List
 from gai.common.utils import get_app_path
 from gai.common import logging, generators_utils
 logger = logging.getLogger(__name__)
-
+from gai.gen.GenBase import GenBase
 from gai.gen.tti.OpenAIDALLE3_TTI import OpenAIDALLE3_TTI
 
-class TTI:
+class TTI(GenBase):
 
     # Register the engines
-    def __init__(self,generator_name="openai-dalle3",generator_config=None):
-        self.generator_name = generator_name
-        self.config = generator_config
+    def __init__(self,generator_name="openai-dalle3",config_path=None):
+        super().__init__(generator_name, config_path)
+
         if not self.config:
             raise Exception(f"Generator {generator_name} not found in generators config")
         if self.config['engine'] == 'OpenAIDALLE3_TTI':

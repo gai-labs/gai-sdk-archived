@@ -16,11 +16,7 @@ from gai.common.StatusListener import StatusListener
 class RAGClientBase(ClientBase):
     
     def __init__(self,config_path=None):
-        super().__init__(config_path)
-        self.base_url = os.path.join(
-            self.config["gai_url"], 
-            self.config["generators"]["rag"]["url"].lstrip('/'))
-        logger.debug(f'base_url={self.base_url}')
+        super().__init__(category_name="rag",config_path=config_path)
 
     def _prepare_files_and_metadata(self, collection_name, file_path, metadata):
         mode = 'rb' if file_path.endswith('.pdf') else 'r'
@@ -148,7 +144,7 @@ class RAGClientAsync(RAGClientBase):
         keywords="", 
         listener_callback=None):
         
-        url=os.path.join(self.base_url,"index-file")
+        url=os.path.join(self.base_url,"api/cli/v1/rag/index-file")
         metadata = {
             "title": title,
             "source": source,

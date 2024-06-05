@@ -11,36 +11,43 @@ logger = getLogger(__name__)
 class ITTClient(ClientBase):
 
     def __init__(self, config_path=None):
-        super().__init__(config_path)
-        logger.debug(f'base_url={self.base_url}')
+        super().__init__(category_name="itt",config_path=config_path)
 
-    def __call__(self, generator=None, messages=None, stream=True, **generator_params):
-        if generator == "openai-vision":
-            return self.vision(messages=messages, stream=stream, **generator_params)
-        return self.api(messages=messages, stream=stream, **generator_params)
+    def __call__(self, type, generator_name=None, messages=None, stream=True, **generator_params):
+        if generator_name:
+            raise Exception("Customed generator_name not supported.")
 
-    def api(self, generator="llava-transformers", messages=None, stream=True, **generator_params):
+        if type == "openai":
+            return self.openai_vision(messages=messages, stream=stream, **generator_params)
+        if type == "gai":
+            return self.api(messages=messages, stream=stream, **generator_params)
 
-        def streamer(response):
-            for chunk in response.iter_lines():
-                yield ChunkWrapper(chunk)
+        raise Exception("Generator type not supported.")
+        
+
+    def api(self, messages=None, stream=True, **generator_params):
+        if not messages:
+            raise Exception("Messages not provided")
 
         data = {
-            "model": generator,
             "messages": messages,
             "stream": stream,
             **generator_params
         }
 
-        url = self._gen_url(generator=generator)
-        response = http_post(url, data)
+        def streamer(response):
+            for chunk in response.iter_lines():
+                yield ChunkWrapper(chunk)
+
+        response = http_post(self._get_gai_url(), data)
+
         if not stream:
             response.decode = lambda: response.json(
             )["choices"][0]["message"]["content"]
             return response
         return streamer(response)
 
-    def vision(self, messages=None, stream=True, **generator_params):
+    def openai_vision(self, messages=None, stream=True, **generator_params):
         import os
         import openai
         from openai import OpenAI

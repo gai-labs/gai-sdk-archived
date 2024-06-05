@@ -2,12 +2,12 @@ from gai.gen.tts.OpenAI_TTS import OpenAI_TTS
 from gai.gen.tts.XTTS_TTS import XTTS_TTS
 from gai.common import logging, generators_utils
 logger = logging.getLogger(__name__)
-
-class TTS:
+from gai.gen.GenBase import GenBase
+class TTS(GenBase):
     
-    def __init__(self,generator_name):
-        self.generator_name = generator_name
-        self.config = generators_utils.load_generators_config()[generator_name]
+    def __init__(self,generator_name,config_path=None):
+        super().__init__(generator_name, config_path)
+
         if self.config['engine'] == 'OpenAI_TTS':
             self.speech = OpenAI_TTS(self.config)
         elif self.config['engine'] == 'XTTS_TTS':

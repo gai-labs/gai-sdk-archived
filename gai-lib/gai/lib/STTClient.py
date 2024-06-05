@@ -7,33 +7,33 @@ logger = getLogger(__name__)
 class STTClient(ClientBase):
 
     def __init__(self, config_path=None):
-        super().__init__(config_path)
-        logger.debug(f'base_url={self.base_url}')
+        super().__init__(category_name="stt",config_path=config_path)
 
-    def __call__(self, generator="whisper-transformers", file=None, file_path=None):
-        if generator == "openai-whisper":
+    def __call__(self, type, generator_name=None, file=None, file_path=None):
+
+        if generator_name:
+            raise Exception("Customed generator_name not supported.")
+
+        if type=="openai":
             return self.openai_whisper(file=file)
-
 
         if file_path:
             with open(file_path, "rb") as f:
                 data = f.read()
             files = {
-                "model": (None, generator),
                 "file": (file_path, data)
             }
 
-            url = self._gen_url(generator)
+            url = self._get_gai_url()
             response = http_post(url, files=files)
             response.decode = lambda: response.json()["text"]
             return response
 
         if file:
             files = {
-                "model": (None, generator),
                 "file": (file.name, file.read())
             }
-            url = self._gen_url(generator)
+            url = self._get_gai_url()
             response = http_post(url, files=files)
             response.decode = lambda: response.json()["text"]
             return response

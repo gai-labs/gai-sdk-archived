@@ -130,7 +130,10 @@ async def http_post_async(url, data=None, files=None):
     logger.debug(f"httppost:url={url}")
     logger.debug(f"httppost:data={pprint.pformat(data)}")
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+
+    async with httpx.AsyncClient(timeout=30.0,verify=verify_ssl) as client:
         try:
             if files:
                 if data and "stream" in data:

@@ -1,8 +1,14 @@
 default_generator: mistral7b-exllama
-gai_url: "http://localhost:12031"
-#gai_url: "https://gaiaio.ai/api"
+gai_url: "https://localhost:12043"
 generators:
-    mistral7b-exllama:
+    default:
+        ttt: gai-ttt
+        long-ttt: gai-long-ttt
+        stt: gai-stt
+        tts: gai-tts
+        itt: gai-itt
+        rag: gai-rag
+    gai-ttt:
         type: ttt
         url: "/gen/v1/chat/completions"
         whitelist:
@@ -19,7 +25,7 @@ generators:
             - beams
             - beam_length
         default:
-            temperature: 1.2
+            temperature: 0.0001
             top_p: 0.15
             min_p: 0.0
             top_k: 50
@@ -32,7 +38,7 @@ generators:
             beam_length: 1
         env:
             gai_api_key: "gai_api_key"
-    mistral7b_128k-exllama:
+    gai-long-ttt:
         type: ttt
         url: "/gen/v1/longchat/completions"
         whitelist:
@@ -62,7 +68,7 @@ generators:
             beam_length: 1
         env:
             gai_api_key: "gai_api_key"
-    gpt-4:
+    openai-ttt:
         type: ttt
         whitelist:
             - max_tokens
@@ -82,7 +88,7 @@ generators:
             max_tokens: 1000
         env:
             openai_api_key: "openai_api_key"
-    claude2-100k:
+    claude-ttt:
         type: ttt
         whitelist:
             - max_tokens_to_sample
@@ -97,20 +103,20 @@ generators:
             max_tokens_to_sample: 1000
         env:
             anthropic_api_key: "anthropic_api_key"
-    whisper-transformers:
+    gai-stt:
         type: stt
         url: "/gen/v1/audio/transcriptions"
         env:
             gai_api_key: "gai_api_key"
-    xtts-2:
+    gai-tts:
         type: tts
         url: "/gen/v1/audio/speech"
         env:
             gai_api_key: "gai_api_key"
-    llava-transformers:
+    gai-itt:
         type: itt
         url: "/gen/v1/vision/completions"
-    rag:
+    gai-rag:
         type: rag
         url: "/gen/v1/rag"
         env:
