@@ -16,8 +16,8 @@ class UT0020_RAGVSRepository_test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.config = get_gen_config()
-        cls.model_path = os.path.join(get_app_path(), cls.config["gen"]["rag"]["model_path"])
-        cls.device = cls.config["gen"]["rag"]["device"]
+        cls.model_path = os.path.join(get_app_path(), cls.config["gen"]["instructor-rag"]["model_path"])
+        cls.device = cls.config["gen"]["instructor-rag"]["device"]
         cls.db_repo = RAGDBRepository.New(in_memory=True)
         #cls.vs_repo = None
         ef = InstructorEmbeddingFunction(cls.model_path,cls.device)

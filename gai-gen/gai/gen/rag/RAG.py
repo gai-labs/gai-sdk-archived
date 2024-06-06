@@ -24,7 +24,7 @@ class RAG(GenBase):
         app_path = get_app_path()
 
         # local embedding model
-        if generator_name=="rag":
+        if generator_name=="instructor-rag":
             self.model_path = os.path.join(app_path, self.config["model_path"])
             if (os.environ.get("RAG_MODEL_PATH")):
                 model_path = os.environ["RAG_MODEL_PATH"]

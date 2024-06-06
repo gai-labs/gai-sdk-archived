@@ -64,12 +64,13 @@ def get_in_memory():
 
 # Initialise Generator
 from gai.common.utils import get_gen_config
-DEFAULT_GENERATOR=os.getenv("DEFAULT_GENERATOR",None)
 gai_config = get_gen_config()
+DEFAULT_GENERATOR=os.getenv("DEFAULT_GENERATOR",None)
 default_generator_name = gai_config["gen"]["default"]["rag"]
 if DEFAULT_GENERATOR:
     default_generator_name = DEFAULT_GENERATOR
 rag = RAG(in_memory=get_in_memory(), generator_name=default_generator_name)
+
 
 # STARTUP
 async def startup_event():

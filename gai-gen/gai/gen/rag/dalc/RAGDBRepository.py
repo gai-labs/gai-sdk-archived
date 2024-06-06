@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session
 class RAGDBRepository:
     
     def __init__(self, session: Session):
-        self.config = get_gen_config()["gen"]["rag"]
+        self.config = get_gen_config()["gen"]["instructor-rag"]
         self.app_path = get_app_path()
         self.chunks_path = os.path.join(self.app_path, self.config["chunks"]["path"])
         self.chunk_size = self.config["chunks"]["size"]

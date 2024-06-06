@@ -242,7 +242,7 @@
             "api_key": "OPENAI_API_KEY",
             "output_type": "bytes"
         },
-        "rag": {
+        "instructor-rag": {
             "type": "rag",
             "chromadb": {
                 "path": "rag/chromadb",

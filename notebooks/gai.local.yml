@@ -125,18 +125,13 @@ generators:
 
     tti-gai:
         type: tti
-        url: "http://127.0.0.1:12035/sdapi/v1/txt2img"
+        url: "http://localhost:12035/sdapi/v1/txt2img"
         env:
             gai_api_key: "gai_api_key"
 
     rag-gai:
         type: rag
-        url: "http://localhost:12036/gen/v1/rag"
+        url: http://localhost:12036/gen/v1/rag
+        ws_url: ws://localhost:12035/index-file/ws
         env:
             gai_api_key: "gai_api_key"
-
-    rag-openai:
-        type: rag
-        url: "/gen/v1/rag"
-        env:
-            OPENAI_API_KEY: "OPENAI_API_KEY"

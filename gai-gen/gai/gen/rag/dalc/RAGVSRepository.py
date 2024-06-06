@@ -20,7 +20,7 @@ class RAGVSRepository:
     def New(in_memory=False,ef=None):
         try:
             app_path = get_app_path()
-            config = get_gen_config()["gen"]["rag"]
+            config = get_gen_config()["gen"]["instructor-rag"]
             chromadb_path = os.path.join(app_path, config["chromadb"]["path"])
             if in_memory:
                 logger.info(f"RAGVSRepository: in_memory")
@@ -38,7 +38,7 @@ class RAGVSRepository:
             
     def __init__(self, client, ef):
         app_path = get_app_path()
-        config = get_gen_config()["gen"]["rag"]
+        config = get_gen_config()["gen"]["instructor-rag"]
         device = config["device"]
         self._ef = ef
         self.client = client

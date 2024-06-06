@@ -17,6 +17,7 @@ class RAGClientBase(ClientBase):
     
     def __init__(self,config_path=None):
         super().__init__(category_name="rag",config_path=config_path)
+        self.base_url = os.path.join(self.config["generators"]["rag-gai"]["url"])
 
     def _prepare_files_and_metadata(self, collection_name, file_path, metadata):
         mode = 'rb' if file_path.endswith('.pdf') else 'r'
@@ -144,7 +145,7 @@ class RAGClientAsync(RAGClientBase):
         keywords="", 
         listener_callback=None):
         
-        url=os.path.join(self.base_url,"api/cli/v1/rag/index-file")
+        url=os.path.join(self.base_url,"index-file")
         metadata = {
             "title": title,
             "source": source,
@@ -169,7 +170,8 @@ class RAGClientAsync(RAGClientBase):
                 # Spin off listener task if listener_callback is provided
                 listen_task=None
                 if listener_callback:
-                    ws_url=os.path.join(self.base_url,f"index-file/ws").replace("http","ws")
+                    #ws_url=os.path.join(self.base_url,f"index-file/ws").replace("http","ws")
+                    ws_url = self.config["generators"]["rag-gai"]["ws_url"]
                     listener = StatusListener(ws_url, collection_name)
                     listen_task=asyncio.create_task(listener.listen(listener_callback))
 
