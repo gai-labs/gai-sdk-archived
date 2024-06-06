@@ -5,8 +5,7 @@
             "tts": "xtts-2",
             "stt": "whisper-transformers",
             "itt": "llava-transformers",
-            "tti": "openai-dalle3",
-            "rag": "openai-ada-rag"
+            "rag": "instructor-rag"
         },
         "gpt-4": {
             "type": "ttt",
@@ -226,21 +225,6 @@
                 "top_k": 49,
                 "top_p": 0.14
             }
-        },
-
-        "openai-dalle3": {
-            "type": "tti",
-            "engine": "OpenAIDALLE3_TTI",
-            "model_name": "OpenAI DALL-E 3",
-            "api_key": "OPENAI_API_KEY",
-            "output_type": "bytes"
-        },
-        "sd-dalle3": {
-            "type": "tti",
-            "engine": "OpenAIDALLE3_TTI",
-            "model_name": "OpenAI DALL-E 3",
-            "api_key": "OPENAI_API_KEY",
-            "output_type": "bytes"
         },
         "instructor-rag": {
             "type": "rag",

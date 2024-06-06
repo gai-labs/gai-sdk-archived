@@ -18,7 +18,7 @@ from gai.gen.GenBase import GenBase
 
 class RAG(GenBase):
 
-    def __init__(self, generator_name="rag",status_publisher=None, in_memory=True,  config_path=None):
+    def __init__(self, generator_name="rag", device=None, status_publisher=None, in_memory=True,  config_path=None):
         super().__init__(generator_name, config_path)
 
         app_path = get_app_path()
@@ -30,7 +30,11 @@ class RAG(GenBase):
                 model_path = os.environ["RAG_MODEL_PATH"]
                 self.model_path = os.path.join(app_path, model_path)
             self.device = self.config["device"]
-
+            # device from environment variable will override the config file
+            if device:
+                self.device = device
+            
+        logger.info(f"RAG: device={self.device}")
         self.n_results = self.config["chromadb"]["n_results"]
         
         # vector store config
@@ -42,6 +46,8 @@ class RAG(GenBase):
         if in_memory:
             sqlite_path = ":memory:"
         sqlite_string = f'sqlite:///{sqlite_path}' 
+        logger.info(f"RAG: sqlite={sqlite_string}")
+
         engine = create_engine(sqlite_string)
         if in_memory:
             Base.metadata.create_all(engine)

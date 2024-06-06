@@ -136,7 +136,7 @@ services:
                           driver: nvidia
                           count: all
         ports:
-            - "12035:12031"
+            - "12035:12035"
         volumes:
             - ~/gai/models:/app/models
         networks:

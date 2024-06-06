@@ -3,6 +3,7 @@ FROM kakkoii1337/cu118-cp310-base:1.0 AS base
 
 ARG CATEGORY=ttt
 ARG DEBUG=1
+ARG DEVICE=cuda
 
 # Step 1: Install utils
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -52,6 +53,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Step 7: Start server
 ENV CATEGORY=${CATEGORY}
+ENV DEVICE=${DEVICE}
 WORKDIR /app/gai/api
 ENTRYPOINT ["sh", "-c"]
 CMD ["python ${CATEGORY}_api.py"]

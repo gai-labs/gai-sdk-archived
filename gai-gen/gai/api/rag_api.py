@@ -39,6 +39,7 @@ from gai.common.logging import getLogger
 logger = getLogger(__name__)
 logger.info(f"Starting Gai Generators Service v{dependencies.APP_VERSION}")
 logger.info(f"Version of gai_gen installed = {dependencies.LIB_VERSION}")
+
 swagger_url = dependencies.get_swagger_url()
 app = FastAPI(
     title="Gai Generators Service",
@@ -50,8 +51,6 @@ dependencies.configure_cors(app)
 
 from dotenv import load_dotenv
 load_dotenv()
-from gai.common.logging import getLogger
-logger = getLogger(__name__)
 
 # In-memory default to true unless env variable is set to false
 def get_in_memory():
@@ -69,12 +68,11 @@ DEFAULT_GENERATOR=os.getenv("DEFAULT_GENERATOR",None)
 default_generator_name = gai_config["gen"]["default"]["rag"]
 if DEFAULT_GENERATOR:
     default_generator_name = DEFAULT_GENERATOR
-rag = RAG(in_memory=get_in_memory(), generator_name=default_generator_name)
-
+DEVICE = os.getenv("DEVICE",None)
+rag = RAG(device=DEVICE, in_memory=get_in_memory(), generator_name=default_generator_name)
 
 # STARTUP
 async def startup_event():
-    # Perform initialization here
     try:
         rag.load()
     except Exception as e:

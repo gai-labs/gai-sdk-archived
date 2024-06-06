@@ -104,15 +104,15 @@ class RAGClientAsync(RAGClientBase):
             collection_name,
             document_id,
             chunkgroup_id,
-            listener_callback=None):
+            async_callback=None):
         url=os.path.join(self.base_url,"step/index")
         try:
-            # Spin off listener task if listener_callback is provided
+            # Spin off listener task if async_callback is provided
             listen_task=None
-            if listener_callback:
+            if async_callback:
                 ws_url=os.path.join(self.base_url,f"index-file/ws").replace("http","ws")
                 listener = StatusListener(ws_url, collection_name)
-                listen_task=asyncio.create_task(listener.listen(listener_callback))
+                listen_task=asyncio.create_task(listener.listen(async_callback))
 
             response = await http_post_async(url=url, data={
                 "collection_name": collection_name,
@@ -143,7 +143,7 @@ class RAGClientAsync(RAGClientBase):
         published_date="",
         comments="",
         keywords="", 
-        listener_callback=None):
+        async_callback=None):
         
         url=os.path.join(self.base_url,"index-file")
         metadata = {
@@ -167,13 +167,13 @@ class RAGClientAsync(RAGClientBase):
                     "collection_name": (None, collection_name, "text/plain")
                 }
         
-                # Spin off listener task if listener_callback is provided
+                # Spin off listener task if async_callback is provided
                 listen_task=None
-                if listener_callback:
+                if async_callback:
                     #ws_url=os.path.join(self.base_url,f"index-file/ws").replace("http","ws")
                     ws_url = self.config["generators"]["rag-gai"]["ws_url"]
                     listener = StatusListener(ws_url, collection_name)
-                    listen_task=asyncio.create_task(listener.listen(listener_callback))
+                    listen_task=asyncio.create_task(listener.listen(async_callback))
 
                 response = await http_post_async(url=url, files=files)
                 if not response:

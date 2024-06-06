@@ -16,14 +16,15 @@ class StatusListener:
         self.ws_url = os.path.join(ws_url,agent_id)
         self.agent_id = agent_id
 
-    async def listen(self, callback):
+    async def listen(self, async_callback):
         async with websockets.connect(self.ws_url) as websocket:
             logger.info(f"Connected to {self.ws_url}")
             while True:
                 try:
                     message = await websocket.recv()
-                    await asyncio.sleep(0)
-                    asyncio.create_task(callback(message))
+                    await async_callback(message)
+                    # await asyncio.sleep(0)
+                    # asyncio.create_task(callback(message))
                 except websockets.ConnectionClosedError:
                     logger.warn("StatusListener.listen: Server disconnected.")
                     break

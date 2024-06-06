@@ -16,17 +16,18 @@ class StatusListener:
         self.agent_id = agent_id
 
     async def listen(self, callback):
-        async with websockets.connect(self.ws_url) as websocket:
-            logger.info(f"Connected to {self.ws_url}")
-            while True:
-                try:
-                    message = await websocket.recv()
-                    await callback(message)
-                except websockets.ConnectionClosedError:
-                    logger.warn("StatusListener.listen: Server disconnected.")
-                    break
-                except Exception as e:
-                    logger.error(f"Error: {e}")
-                    raise e
+        raise Exception("Implemented in gai-lib")
+        # async with websockets.connect(self.ws_url) as websocket:
+        #     logger.info(f"Connected to {self.ws_url}")
+        #     while True:
+        #         try:
+        #             message = await websocket.recv()
+        #             await callback(message)
+        #         except websockets.ConnectionClosedError:
+        #             logger.warn("StatusListener.listen: Server disconnected.")
+        #             break
+        #         except Exception as e:
+        #             logger.error(f"Error: {e}")
+        #             raise e
     
         
