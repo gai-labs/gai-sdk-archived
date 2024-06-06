@@ -4,7 +4,7 @@ services:
     gai-ttt:
         build:
             context: ./gai-gen
-            dockerfile: ./gai-gen/Dockerfile.TTT
+            dockerfile: ./gai-gen/Dockerfile
             args:
                 # For requirements_{category}.txt
                 CATEGORY: "ttt"
@@ -14,8 +14,7 @@ services:
             LOG_LEVEL: "DEBUG"
             TZ: "Asia/Singapore"
             SWAGGER_URL: "/doc"
-            OPENAI_API_KEY: ${OPENAI_API_KEY}
-            DEFAULT_GENERATOR: "gpt-4"
+            DEFAULT_GENERATOR: "mistral7b-exllama"
         deploy:
             resources:
                 reservations:
@@ -30,117 +29,115 @@ services:
         networks:
             - gai-demo
 
-    gai-tts:
-        build:
-            context: ../gai-sdk/gai-gen
-            dockerfile: ../gai-sdk/gai-gen/Dockerfile.TTS
-            args:
-                # For requirements_{category}.txt
-                CATEGORY: "tts"
-        image: gai-tts:latest
-        container_name: gai-tts
-        environment:
-            LOG_LEVEL: "DEBUG"
-            TZ: "Asia/Singapore"
-            SWAGGER_URL: "/doc"
-            OPENAI_API_KEY: ${OPENAI_API_KEY}
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                        - capabilities: [gpu]
-                          driver: nvidia
-                          count: all
-        ports:
-            - "12032:12032"
-        volumes:
-            - ~/gai/models:/app/models
-        networks:
-            - gai-demo
+    # gai-tts:
+    #     build:
+    #         context: ../gai-sdk/gai-gen
+    #         dockerfile: ../gai-sdk/gai-gen/Dockerfile
+    #         args:
+    #             # For requirements_{category}.txt
+    #             CATEGORY: "tts"
+    #     image: gai-tts:latest
+    #     container_name: gai-tts
+    #     environment:
+    #         LOG_LEVEL: "DEBUG"
+    #         TZ: "Asia/Singapore"
+    #         SWAGGER_URL: "/doc"
+    #         DEFAULT_GENERATOR: "xtts-2"
+    #     deploy:
+    #         resources:
+    #             reservations:
+    #                 devices:
+    #                     - capabilities: [gpu]
+    #                       driver: nvidia
+    #                       count: all
+    #     ports:
+    #         - "12032:12032"
+    #     volumes:
+    #         - ~/gai/models:/app/models
+    #     networks:
+    #         - gai-demo
 
-    gai-stt:
-        build:
-            context: ../gai-sdk/gai-gen
-            dockerfile: ../gai-sdk/gai-gen/Dockerfile
-            args:
-                # For requirements_{category}.txt
-                CATEGORY: "stt"
-        image: gai-stt:latest
-        container_name: gai-stt
-        environment:
-            LOG_LEVEL: "DEBUG"
-            TZ: "Asia/Singapore"
-            SWAGGER_URL: "/doc"
-            OPENAI_API_KEY: ${OPENAI_API_KEY}
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                        - capabilities: [gpu]
-                          driver: nvidia
-                          count: all
-        ports:
-            - "12033:12033"
-        volumes:
-            - ~/gai/models:/app/models
-        networks:
-            - gai-demo
+    # gai-stt:
+    #     build:
+    #         context: ../gai-sdk/gai-gen
+    #         dockerfile: ../gai-sdk/gai-gen/Dockerfile
+    #         args:
+    #             # For requirements_{category}.txt
+    #             CATEGORY: "stt"
+    #     image: gai-stt:latest
+    #     container_name: gai-stt
+    #     environment:
+    #         LOG_LEVEL: "DEBUG"
+    #         TZ: "Asia/Singapore"
+    #         SWAGGER_URL: "/doc"
+    #         DEFAULT_GENERATOR: "whisper-transformers"
+    #     deploy:
+    #         resources:
+    #             reservations:
+    #                 devices:
+    #                     - capabilities: [gpu]
+    #                       driver: nvidia
+    #                       count: all
+    #     ports:
+    #         - "12033:12033"
+    #     volumes:
+    #         - ~/gai/models:/app/models
+    #     networks:
+    #         - gai-demo
 
-    gai-itt:
-        build:
-            context: ../gai-sdk/gai-gen
-            dockerfile: ../gai-sdk/gai-gen/Dockerfile.ITT
-            args:
-                # For requirements_{category}.txt
-                CATEGORY: "itt"
-        image: gai-itt:latest
-        container_name: gai-itt
-        environment:
-            LOG_LEVEL: "DEBUG"
-            TZ: "Asia/Singapore"
-            SWAGGER_URL: "/doc"
-            OPENAI_API_KEY: ${OPENAI_API_KEY}
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                        - capabilities: [gpu]
-                          driver: nvidia
-                          count: all
-        ports:
-            - "12034:12034"
-        volumes:
-            - ~/gai/models:/app/models
-        networks:
-            - gai-demo
+    # gai-itt:
+    #     build:
+    #         context: ../gai-sdk/gai-gen
+    #         dockerfile: ../gai-sdk/gai-gen/Dockerfile.ITT
+    #         args:
+    #             # For requirements_{category}.txt
+    #             CATEGORY: "itt"
+    #     image: gai-itt:latest
+    #     container_name: gai-itt
+    #     environment:
+    #         LOG_LEVEL: "DEBUG"
+    #         TZ: "Asia/Singapore"
+    #         SWAGGER_URL: "/doc"
+    #         DEFAULT_GENERATOR: "llava-transformers"
+    #     deploy:
+    #         resources:
+    #             reservations:
+    #                 devices:
+    #                     - capabilities: [gpu]
+    #                       driver: nvidia
+    #                       count: all
+    #     ports:
+    #         - "12034:12034"
+    #     volumes:
+    #         - ~/gai/models:/app/models
+    #     networks:
+    #         - gai-demo
 
-    gai-tti:
-        build:
-            context: ../gai-sdk/gai-gen
-            dockerfile: ../gai-sdk/gai-gen/Dockerfile.TTI
-            args:
-                # For requirements_{category}.txt
-                CATEGORY: "tti"
-        image: gai-tti:latest
-        container_name: gai-tti
-        environment:
-            LOG_LEVEL: "DEBUG"
-            TZ: "Asia/Singapore"
-            SWAGGER_URL: "/doc"
-            OPENAI_API_KEY: ${OPENAI_API_KEY}
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                        - capabilities: [gpu]
-                          driver: nvidia
-                          count: all
-        ports:
-            - "12035:12035"
-        volumes:
-            - ~/gai/models:/app/models
-        networks:
-            - gai-demo
+    # gai-tti:
+    #     build:
+    #         context: .
+    #         dockerfile: ./Dockerfile.TTI
+    #         args:
+    #             # For requirements_{category}.txt
+    #             CATEGORY: "tti"
+    #     image: gai-tti:latest
+    #     container_name: gai-tti
+    #     environment:
+    #         CLI_ARGS: "--listen --api --xformers --medvram"
+    #     deploy:
+    #         resources:
+    #             reservations:
+    #                 devices:
+    #                     - capabilities: [gpu]
+    #                       driver: nvidia
+    #                       count: all
+    #     ports:
+    #         - "12035:12035"
+    #     volumes:
+    #         - ~/gai/models/Stable-diffusion:/stable-diffusion-webui/models/Stable-diffusion
+    #         - ~/gai/models/VAE:/stable-diffusion-webui/models/VAE
+    #     networks:
+    #         - gai-demo
 
     gai-rag:
         build:
@@ -155,8 +152,7 @@ services:
             LOG_LEVEL: "DEBUG"
             TZ: "Asia/Singapore"
             SWAGGER_URL: "/doc"
-            OPENAI_API_KEY: ${OPENAI_API_KEY}
-            DEFAULT_GENERATOR: "openai-ada-rag"
+            DEFAULT_GENERATOR: "instructor-rag"
         deploy:
             resources:
                 reservations:
@@ -165,7 +161,7 @@ services:
                           driver: nvidia
                           count: all
         ports:
-            - "12036:12031"
+            - "12036:12036"
         volumes:
             - ~/gai/models:/app/models
         networks:
