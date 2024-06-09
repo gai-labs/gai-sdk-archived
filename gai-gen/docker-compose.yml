@@ -3,8 +3,8 @@ version: "3.8"
 services:
     gai-ttt:
         build:
-            context: ./gai-gen
-            dockerfile: ./gai-gen/Dockerfile
+            context: .
+            dockerfile: ./Dockerfile
             args:
                 # For requirements_{category}.txt
                 CATEGORY: "ttt"
@@ -14,7 +14,7 @@ services:
             LOG_LEVEL: "DEBUG"
             TZ: "Asia/Singapore"
             SWAGGER_URL: "/doc"
-            DEFAULT_GENERATOR: "mistral7b-exllama"
+            DEFAULT_GENERATOR: "mistral7b-exllama2"
         deploy:
             resources:
                 reservations:
@@ -31,8 +31,8 @@ services:
 
     # gai-tts:
     #     build:
-    #         context: ../gai-sdk/gai-gen
-    #         dockerfile: ../gai-sdk/gai-gen/Dockerfile
+    #         context: .
+    #         dockerfile: ./Dockerfile
     #         args:
     #             # For requirements_{category}.txt
     #             CATEGORY: "tts"
@@ -59,8 +59,8 @@ services:
 
     # gai-stt:
     #     build:
-    #         context: ../gai-sdk/gai-gen
-    #         dockerfile: ../gai-sdk/gai-gen/Dockerfile
+    #         context: .
+    #         dockerfile: ./Dockerfile
     #         args:
     #             # For requirements_{category}.txt
     #             CATEGORY: "stt"
@@ -87,8 +87,8 @@ services:
 
     # gai-itt:
     #     build:
-    #         context: ../gai-sdk/gai-gen
-    #         dockerfile: ../gai-sdk/gai-gen/Dockerfile.ITT
+    #         context: .
+    #         dockerfile: ./Dockerfile.ITT
     #         args:
     #             # For requirements_{category}.txt
     #             CATEGORY: "itt"

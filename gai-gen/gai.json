@@ -2,6 +2,7 @@
     "gen": {
         "default": {
             "ttt": "mistral7b-exllama",
+            "ttt2": "mistral7b-exllama2",
             "tts": "xtts-2",
             "stt": "whisper-transformers",
             "itt": "llava-transformers",
@@ -29,6 +30,52 @@
             "model_path": "models/Mistral-7B-Instruct-v0.1-GPTQ",
             "model_basename": "model",
             "max_seq_len": 8192,
+            "stopping_words": [],
+            "hyperparameters": {
+                "temperature": 1.2,
+                "top_p": 0.15,
+                "min_p": 0.0,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "typical": 0.0,
+                "token_repetition_penalty_max": 1.25,
+                "token_repetition_penalty_sustain": 256,
+                "token_repetition_penalty_decay": 128,
+                "beams": 1,
+                "beam_length": 1
+            }
+        },
+        "llama3-exllama2": {
+            "type": "ttt",
+            "model_name": "llama3-exllama2",
+            "engine": "ExLlamaV2_TTT",
+            "model_path": "models/Meta-Llama-3-8B-Instruct-EXL2",
+            "model_basename": "model",
+            "max_seq_len": 8192,
+            "prompt_format": "llama3",
+            "stopping_words": [],
+            "hyperparameters": {
+                "temperature": 1.2,
+                "top_p": 0.15,
+                "min_p": 0.0,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "typical": 0.0,
+                "token_repetition_penalty_max": 1.25,
+                "token_repetition_penalty_sustain": 256,
+                "token_repetition_penalty_decay": 128,
+                "beams": 1,
+                "beam_length": 1
+            }
+        },
+        "mistral7b-exllama2": {
+            "type": "ttt",
+            "model_name": "mistral7b-exllama2",
+            "engine": "ExLlamaV2_TTT",
+            "model_path": "models/Mistral-7B-Instruct-v0.3-exl2",
+            "model_basename": "model",
+            "max_seq_len": 8192,
+            "prompt_format": "mistral",
             "stopping_words": [],
             "hyperparameters": {
                 "temperature": 1.2,

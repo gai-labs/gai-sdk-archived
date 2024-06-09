@@ -1,0 +1,15 @@
+torch==2.2.0
+#torchaudio
+#torchvision
+#llama_cpp_python==0.2.77
+openai==1.32.0
+#transformers==4.41.2
+#bitsandbytes==0.43.1
+tokenizers
+accelerate==0.30.1
+fastapi
+huggingface-hub
+pydantic
+uvicorn
+lm-format-enforcer==0.10.2
+jsonschema==4.22.0

@@ -1,17 +1,8 @@
-gai_url: "https://localhost:12043"
-#gai_url: "https://gaiaio.ai/api"
+gai_url: ""
 generators:
-    default:
-        ttt: ttt-openai
-        ttt-long: ttt-long-claude
-        stt: stt-openai
-        tts: tts-openai
-        itt: itt-openai
-        rag: rag-openai
-
     ttt-gai:
         type: ttt
-        url: "/gen/v1/chat/completions"
+        url: "http://localhost:12031/gen/v1/chat/completions"
         whitelist:
             - temperature
             - top_p
@@ -25,18 +16,6 @@ generators:
             - token_repetition_penalty_decay
             - beams
             - beam_length
-        default:
-            temperature: 0.0001
-            top_p: 0.15
-            min_p: 0.0
-            top_k: 50
-            max_new_tokens: 1000
-            typical: 0.0
-            token_repetition_penalty_max: 1.25
-            token_repetition_penalty_sustain: 256
-            token_repetition_penalty_decay: 128
-            beams: 1
-            beam_length: 1
         env:
             gai_api_key: "gai_api_key"
 
@@ -63,7 +42,7 @@ generators:
 
     ttt-long-gai:
         type: ttt
-        url: "/gen/v1/longchat/completions"
+        url: "http://localhost:12031/gen/v1/longchat/completions"
         whitelist:
             - temperature
             - top_p
@@ -108,48 +87,51 @@ generators:
         env:
             ANTHROPIC_API_KEY: "ANTHROPIC_API_KEY"
 
-    stt-gai:
-        type: stt
-        url: "/gen/v1/audio/transcriptions"
-        env:
-            gai_api_key: "gai_api_key"
-    stt-openai:
-        type: stt
-        url: "/gen/v1/audio/transcriptions"
-        env:
-            OPENAI_API_KEY: "OPENAI_API_KEY"
-
     tts-gai:
         type: tts
-        url: "/gen/v1/audio/speech"
+        url: "http://localhost:12032/gen/v1/audio/speech"
         env:
             gai_api_key: "gai_api_key"
     tts-openai:
         type: tts
-        url: "/gen/v1/audio/speech"
+        env:
+            OPENAI_API_KEY: "OPENAI_API_KEY"
+
+    stt-gai:
+        type: stt
+        url: "http://localhost:12033/gen/v1/audio/transcriptions"
+        env:
+            gai_api_key: "gai_api_key"
+    stt-openai:
+        type: stt
         env:
             OPENAI_API_KEY: "OPENAI_API_KEY"
 
     itt-gai:
         type: itt
-        url: "/gen/v1/vision/completions"
+        url: "http://localhost:12034/gen/v1/vision/completions"
         env:
             gai_api_key: "gai_api_key"
 
     itt-openai:
         type: itt
-        url: "/gen/v1/vision/completions"
         env:
             OPENAI_API_KEY: "OPENAI_API_KEY"
 
-    rag-gai:
-        type: rag
-        url: "/gen/v1/rag"
+    tti-openai:
+        type: tti
+        env:
+            OPENAI_API_KEY: "OPENAI_API_KEY"
+
+    tti-gai:
+        type: tti
+        url: "http://localhost:12035/sdapi/v1/txt2img"
         env:
             gai_api_key: "gai_api_key"
 
-    rag-openai:
+    rag-gai:
         type: rag
-        url: "/gen/v1/rag"
+        url: http://localhost:12036/gen/v1/rag
+        ws_url: ws://localhost:12036/gen/v1/rag/index-file/ws
         env:
-            OPENAI_API_KEY: "OPENAI_API_KEY"
+            gai_api_key: "gai_api_key"

@@ -14,8 +14,8 @@ class TTT(GenBase):
             from gai.gen.ttt.ExLlama_TTT import ExLlama_TTT
             self.engine = ExLlama_TTT(self.config)
         elif self.config['engine'] == 'ExLlamaV2_TTT':
-            from gai.gen.ttt.ExLlamaV2_TTT import ExLlamaV2_TTT
-            self.engine = ExLlamaV2_TTT(self.config)
+            from gai.gen.ttt.ExLlamav2_TTT import ExLlamav2_TTT
+            self.engine = ExLlamav2_TTT(self.config)
         elif self.config['engine'] == 'AutoGPTQ_TTT':
             from gai.gen.ttt.AutoGPTQ_TTT import AutoGPTQ_TTT
             self.engine = AutoGPTQ_TTT(self.config)

@@ -158,9 +158,29 @@ def word_streamer( char_generator):
                 buffer = words[-1]
     yield buffer
 
+def get_tools_schema():
+    return {
+        "type": "object",
+        "properties": {
+            "function": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "arguments": {
+                        "type": "object",
+                    }
+                },
+                "required": ["name", "arguments"]
+            },
+        },
+        "required": ["function"]            
+    }
+
 def apply_tools_message( messages: List, **model_params):
 
-    # Check if tools are required
+    # Check if tools are required and add a tools prompt
     if "tools" in model_params and model_params["tools"] is not None:
 
         tool_choice = model_params.get("tool_choice","auto")
@@ -171,46 +191,22 @@ def apply_tools_message( messages: List, **model_params):
             # Create a system message to introduce the tools
             system_message = {"role":"system","content":
             """
-            You will always begin your interaction by asking yourself if the user's message is a message that requires a tool response or a text response.
-                            
-            DEFINITIONS:
-            1. A <tool> response is based on the following JSON format:
-                    
-                    {{
-                        'function': {{
-                            'name': ...,
-                            'arguments': ...
-                        }}
-                    }}
-                    
-            
-            And the <tool> is chosen from the following <tools> list:
-                    
-                    {tools}
-                    
-                
-            2. A text response is based on the following JSON format:
-                    <text>
-                    {{
-                        'text': ...
-                    }}
-                    </text>
-            
-            STEPS:
-            1. Think about the nature of the user's message.
-                * Is the user's message a question that I can answer factually within my knowledge domain?
-                * Are there any dependencies to external factors that I need to consider before answering the user's question?
-                * What are the tools I have at my disposal to help me answer the user's question? 
-            2. If the user's message requires a tool response, pick the most suitable tool response from <tools>. 
-                * I can refer to the "description" field of each tool to help me decide.
-                * For example, if I need to search for real-time information, I can use the "gg" tool and if I know where to find the information, I can use the "scrape" tool.
-            3. If the user's message does not require a tool response, provide a text response to the user.
+            1. Review the <tools> below and assess if any of them is suitable for responding to the user's message.
 
-            CONSTRAINTS:        
-            1. You can only provide a tool response or a text response and nothing else.
-            2. When providing a tool response, respond only in JSON and only pick from <tools>. That means, begin your message with a curly bracket ' and end your message with a curly bracket '. Do not respond with anything else.
-            3. Remember, do not invent your own tools. You can only pick from <tools>.
+                {tools}
+
+            2. If none of the tools are suitable, you can respond with a <text> response that looks like the following:
+                
+            {{
+                "function": {{
+                    "name": "text",
+                    "arguments": {{
+                        "text": "This is a text response."
+                    }}
+                }}
+            }}
             """}
+
             tools = model_params["tools"]
             try:
                 system_message["content"] = system_message["content"].format(
@@ -232,3 +228,67 @@ def apply_tools_message( messages: List, **model_params):
                 messages.append(ai_placeholder)
 
     return messages
+
+def apply_schema_prompt( messages: List, **model_params):
+
+    # Check if schemas are required
+    schema = model_params.get("schema",None)
+
+    # Apply schema. Note that tool schema will override any provided schema.
+    if schema:
+        system_message={"role":"system","content":f"You will respond to the user's message based only on the following JSON schema {schema}. Begin your response with a curly bracket '{{' and end it with a curly bracket '}}'."}
+
+        # Insert the system message immediately before the last user_message.                
+        ai_placeholder = None
+        if has_ai_placeholder(messages):
+            ai_placeholder = messages.pop()
+        user_message = messages.pop()
+        messages.append(system_message)
+        messages.append(user_message)
+        if ai_placeholder:
+            messages.append(ai_placeholder)
+
+    return messages
+
+def format_list_to_prompt(messages, format_type="llama3"):
+    prompt=""
+    if messages[-1]["content"]:
+        raise Exception("Last message should be an AI placeholder")
+    if format_type == "llama3":
+        prompt="<|begin_of_text|>"
+        for message in messages:
+            role = message['role']
+            role_prompt=f"<|start_header_id|>{role}<|end_header_id|>"
+            content = message['content']
+            if content:
+                prompt+=f"{role_prompt}\n\n{content}<|eot_id|>"
+            else:
+                prompt+=role_prompt
+        return prompt
+
+    if format_type == "mistral":
+        prompt="<s>"
+        for message in messages:
+            role = message['role']
+            content = message['content']
+            if content:
+                prompt+=f"{role}: {content}\n"
+                if role.lower() == "assistant":
+                    prompt+="</s><s>"
+            else:
+                prompt+=f"{role}:"
+        return prompt
+        # prompt="<s>"
+        # for message in messages:
+        #     role = message['role']
+        #     content = message['content']
+        #     if role.lower() == "system" or role.lower() == "user":
+        #         if content:
+        #             prompt+=f"[INST]{content}[/INST]"
+        #     if role.lower() == "assistant":
+        #         if content:
+        #             prompt+=f"{content}</s><s>"
+        # prompt.replace("[/INST][INST]","")
+        # return prompt
+
+    raise Exception(f"Invalid format type '{format_type}'")

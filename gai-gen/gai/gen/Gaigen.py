@@ -46,7 +46,8 @@ class Gaigen:
         if self.generator_name and self.generator_name != generator_name:
             logger.debug(
                 "Gaigen.load: New generator_name specified, unload current generator.")
-            self.generator.unload()
+            if self.generator:
+                self.generator.unload()
 
         generator_type = self.config[generator_name]["type"]
         if generator_type == "ttt":
@@ -89,6 +90,7 @@ class Gaigen:
         if self.generator is not None:
             self.generator.unload()
             self.generator = None
+            self.generator_name = None
         return self
 
     def create(self, **model_params):
