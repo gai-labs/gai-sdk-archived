@@ -76,6 +76,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements_${CATEGORY}.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -e .
+RUN pip install debugpy
 
 # Start Server
 WORKDIR /app/gai/api

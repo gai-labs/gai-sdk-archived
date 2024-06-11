@@ -18,7 +18,7 @@ curl -X POST \
     -H 'Content-Type: application/json' \
     -s \
     -N \
-    -d "{\"model\":\"mistral7b-exllama\", \
+    -d "{\"model\":\"mistral7b-exllama2\", \
         \"messages\": [ \
             {\"role\": \"user\",\"content\": \"Tell me a story\"}, \
             {\"role\": \"assistant\",\"content\": \"\"} \

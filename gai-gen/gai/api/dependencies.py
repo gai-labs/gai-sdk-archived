@@ -80,3 +80,4 @@ async def acquire_semaphore(semaphore):
 def release_semaphore(semaphore):
     if semaphore:
         semaphore.release()
+        logger.debug("_streaming: Server is available")

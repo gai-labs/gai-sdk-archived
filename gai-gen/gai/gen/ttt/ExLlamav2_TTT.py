@@ -1,7 +1,8 @@
 import os,torch,gc,json,re
 from gai.common.utils import this_dir, get_app_path
 from gai.common.generators_utils import chat_string_to_list, has_ai_placeholder,apply_tools_message,chat_list_to_string,format_list_to_prompt, apply_schema_prompt, get_tools_schema
-from gai.common.logging import getLogger
+from gai.common.logging import getLogger, configure_loglevel
+configure_loglevel()
 logger = getLogger(__name__)
 from exllamav2 import(
     ExLlamaV2,
@@ -334,17 +335,22 @@ class ExLlamav2_TTT:
         if tools:
             if "function" in json_data:
                 if json_data["function"]["name"] == "text":
+                    function_text=json_data["function"]["arguments"]["text"]
+                    logger.debug(f"ExLlama_TTT2._generating: function_text={function_text}")
                     return OutputBuilder.BuildContent(
                         generator=self.gai_config["model_name"],
                         finish_reason=finish_reason,
-                        content=json_data["function"]["arguments"]["text"],
+                        content=function_text,
                         prompt_tokens=input_len,
                         new_tokens=output_len
                     )
+                function_name=json_data["function"]["name"]
+                function_arguments=json_data["function"]["arguments"]
+                logger.debug(f"ExLlama_TTT2._generating: function_name={function_name} function_arguments={function_arguments}")
                 return OutputBuilder.BuildTool(
                     generator=self.gai_config["model_name"],
-                    function_name=json_data["function"]["name"],
-                    function_arguments=json.dumps(json_data["function"]["arguments"]),
+                    function_name=function_name,
+                    function_arguments=function_arguments,
                     prompt_tokens=input_len,
                     new_tokens=output_len
                     )            
@@ -357,6 +363,7 @@ class ExLlamav2_TTT:
                 prompt_tokens=input_len,
                 new_tokens=output_len
             )
+            logger.debug(f"ExLlama_TTT2._generating: content={response.lstrip()}")
         return chat_completion
 
     def create(self, messages, stream=True, **model_params):
@@ -390,6 +397,7 @@ class ExLlamav2_TTT:
         # Format the list to corresponding model's prompt format
         prompt_format = self.gai_config.get("prompt_format")
         prompt = format_list_to_prompt(messages=messages, format_type=prompt_format)
+        logger.info(f"ExLlama_TTT2.create: prompt={prompt} schema={schema} tools={tools} prompt_format={prompt_format}")
 
         # stop_token
         stop_conditions=[self.tokenizer.eos_token_id]
@@ -398,7 +406,8 @@ class ExLlamav2_TTT:
         if prompt_format == "mistral":
             stop_conditions=[
                 "<s>",
-                "</s>"]
+                "</s>",
+                "user:"]
 
         # max_tokens
         max_tokens=300

@@ -9,6 +9,8 @@ from gai.common.logging import getLogger
 logger = getLogger(__name__)
 import json,os
 from gai.lib.ClientBase import ClientBase
+from dotenv import load_dotenv
+load_dotenv()
 
 class TTTClient(ClientBase):
 
@@ -94,8 +96,6 @@ class TTTClient(ClientBase):
         OPENAI_API_KEY = generator_params.pop("OPENAI_API_KEY", None)
         if not OPENAI_API_KEY:
             # Then try to find it in environment variables
-            from dotenv import load_dotenv
-            load_dotenv()
             if not os.environ.get("OPENAI_API_KEY"):
                 raise Exception(
                     "OPENAI_API_KEY not found in environment variables")

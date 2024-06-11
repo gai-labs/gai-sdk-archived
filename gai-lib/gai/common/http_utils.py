@@ -62,19 +62,28 @@ def _handle_failed_response_sync(response : requests.Response):
 def http_post(url, data=None, files=None):
     if data == None and files == None:
         raise Exception("No data or files provided")
-
     logger.debug(f"httppost:url={url}")
     logger.debug(f"httppost:data={pprint.pformat(data)}")
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
+
     try:
+
         if files:
             if data and "stream" in data:
                 files["stream"] = (None, data["stream"])
-            response = requests.post(url, files=files)
+            response = requests.post(url, files=files,verify=verify_ssl)
         else:
             if "stream" in data:
-                response = requests.post(url, json=data, stream=data["stream"])
+                response = requests.post(url, json=data, stream=data["stream"], headers=headers,verify=verify_ssl)
             else:
-                response = requests.post(url, json=data)
+                response = requests.post(url, json=data,verify=verify_ssl)
         if response.status_code == 200:
             return response
         else:
@@ -84,8 +93,19 @@ def http_post(url, data=None, files=None):
         raise Exception("Connection Error. Is the service Running?")
 
 def http_get(url):
+    logger.debug(f"httppost:url={url}")
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
+
     try:
-        response = requests.get(url)
+
+        response = requests.get(url, headers=headers,verify=verify_ssl)
         if response.status_code == 200:
             return response
         else:
@@ -94,8 +114,18 @@ def http_get(url):
         raise Exception("Connection Error. Is the service Running?")
 
 def http_delete(url):
+    logger.debug(f"httppost:url={url}")
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
+
     try:
-        response = requests.delete(url)
+        response = requests.delete(url, headers=headers,verify=verify_ssl)
         if response.status_code == 200:
             return response
         else:
@@ -104,8 +134,18 @@ def http_delete(url):
         raise Exception("Connection Error. Is the service Running?")
 
 def http_put(url):
+    logger.debug(f"httppost:url={url}")
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
+    
     try:
-        response = requests.put(url)
+        response = requests.put(url, headers=headers, verify=verify_ssl)
         if response.status_code == 200:
             return response
         else:
@@ -129,21 +169,26 @@ async def http_post_async(url, data=None, files=None):
 
     logger.debug(f"httppost:url={url}")
     logger.debug(f"httppost:data={pprint.pformat(data)}")
-
     # Disable SSL verification if URL is for localhost
     verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
 
-    async with httpx.AsyncClient(timeout=120.0,verify=verify_ssl) as client:
+    async with httpx.AsyncClient(timeout=120.0,verify=verify_ssl,) as client:
         try:
             if files:
                 if data and "stream" in data:
                     files["stream"] = (None, data["stream"])
-                response = await client.post(url, files=files)
+                response = await client.post(url, files=files, headers=headers )
             else:
                 if "stream" in data:
-                    response = await client.post(url, json=data, stream=data["stream"])
+                    response = await client.post(url, json=data, stream=data["stream"], headers=headers)
                 else:
-                    response = await client.post(url, json=data)
+                    response = await client.post(url, json=data, headers=headers)
 
             if response.status_code == 200:
                 return response
@@ -154,9 +199,19 @@ async def http_post_async(url, data=None, files=None):
             raise Exception("Connection Error. Is the service Running?")
 
 async def http_get_async(url):
-    async with httpx.AsyncClient() as client:
+    logger.debug(f"httppost:url={url}")
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
+
+    async with httpx.AsyncClient(verify=verify_ssl) as client:
         try:
-            response = await client.get(url)
+            response = await client.get(url,headers=headers)
             if response.status_code == 200:
                 return response                      # Returning the data
             else:
@@ -165,9 +220,19 @@ async def http_get_async(url):
             raise Exception("Connection Error. Is the service Running?")
 
 async def http_delete_async(url):
-    async with httpx.AsyncClient() as session:
+    logger.debug(f"httppost:url={url}")
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
+
+    async with httpx.AsyncClient(verify=verify_ssl) as session:
         try:
-            response = await session.delete(url)
+            response = await session.delete(url,headers=headers)
             if response.status_code == 200:
                 return response
             else:
@@ -176,9 +241,19 @@ async def http_delete_async(url):
             raise Exception("Connection Error. Is the service Running?")
     
 async def http_put_async(url):
-    async with httpx.AsyncClient() as session:
+    logger.debug(f"httppost:url={url}")
+    # Disable SSL verification if URL is for localhost
+    verify_ssl = not (url.startswith('https://localhost') or url.startswith('https://127.0.0.1'))
+    gai_api_key=os.environ.get("GAI_API_KEY", None)
+    headers = {}
+    if gai_api_key:
+        headers = {
+            "X-Api-Key": gai_api_key
+        }
+
+    async with httpx.AsyncClient(verify=verify_ssl) as session:
         try:
-            response = await session.put(url)
+            response = await session.put(url,headers=headers)
             if response.status_code == 200:
                 return response
             else:
