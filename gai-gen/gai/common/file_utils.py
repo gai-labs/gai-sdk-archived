@@ -2,7 +2,7 @@ import os, zipfile
 import uuid
 import tempfile,shutil,re
 from . import constants,utils
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from gai.common.TextSplitter import TextSplitter
 from io import TextIOWrapper
 import hashlib,base64
 
@@ -81,7 +81,7 @@ def get_chunk_dir(path_or_url=None):
 '''
 Name: split_file
 Description:
-    The function uses LangChain's RecursiveCharacterTextSplitter to split the text into chunks.
+    Split a text file into chunks.
 Parameters:
     src_file: The source file path or file object
     dest_dir: (default:/tmp/chunks) The base directory for saving the chunks. The chunks will be saved in a subdirectory named after the input filename.
@@ -117,7 +117,7 @@ def split_file(src_file, chunk_size=1000,chunk_overlap=100):
 '''
 Name: split_text
 Description:
-    The function uses LangChain's RecursiveCharacterTextSplitter to split the text into chunks and write each chunk into a subdirectory.
+    The function is based on LangChain's RecursiveCharacterTextSplitter to split the text into chunks and write each chunk into a subdirectory.
 Parameters:
     text: The input text to be split into chunks.
     sub_dir: (default:None) /tmp/chunks/{sub_dir} for saving the chunks. If sub_dir is not provided, a GUID named subdirectory will be used.
@@ -142,7 +142,7 @@ def split_text(text, sub_dir=None ,chunk_size=2000,chunk_overlap=200):
         shutil.rmtree(dest_dir)    
     os.makedirs(dest_dir)
 
-    splitter = RecursiveCharacterTextSplitter(
+    splitter = TextSplitter(
         chunk_size=chunk_size,        # approx 512 tokens
         chunk_overlap=chunk_overlap,     # 10% overlap
         length_function=len,
@@ -171,9 +171,9 @@ Description:
 Parameters:
     text: The input text to be converted in SHA256 hash.
 Example:
-    create_chunk_id("This is a test") will return the SHA256 hash of the input text.
+    create_chunk_id_hex("This is a test") will return the SHA256 hash of the input text.
 '''
-def create_chunk_id(text):
+def create_chunk_id_hex(text):
     import hashlib
     if isinstance(text, bytes):
         byte_text = text

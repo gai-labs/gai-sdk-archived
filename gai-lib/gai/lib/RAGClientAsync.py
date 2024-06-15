@@ -6,17 +6,16 @@ import uuid
 from pydantic import BaseModel
 from gai.common.http_utils import http_post_async, http_get_async,http_delete_async, http_put_async
 from gai.common.logging import getLogger
-from gai.common.errors import ApiException, DocumentNotFoundException
 logger = getLogger(__name__)
-logger.setLevel("DEBUG")
+from gai.common.errors import ApiException, DocumentNotFoundException
 from gai.lib.ClientBase import ClientBase
 import websockets
 from gai.common.StatusListener import StatusListener
 
 class RAGClientBase(ClientBase):
     
-    def __init__(self,config_path=None):
-        super().__init__(category_name="rag",config_path=config_path)
+    def __init__(self,type,config_path=None):
+        super().__init__(category_name="rag",type=type,config_path=config_path)
         self.base_url = os.path.join(self.config["generators"]["rag-gai"]["url"])
 
     def _prepare_files_and_metadata(self, collection_name, file_path, metadata):
@@ -31,8 +30,8 @@ class RAGClientBase(ClientBase):
 
 class RAGClientAsync(RAGClientBase):
 
-    def __init__(self,config_path=None):
-        super().__init__(config_path)
+    def __init__(self,type,config_path=None):
+        super().__init__(type,config_path)
 
     ### ----------------- MULTI-STEP INDEXING ----------------- ###
     async def step_header_async(

@@ -6,19 +6,19 @@ import json, base64
 
 class TTIClient(ClientBase):
 
-    def __init__(self, config_path=None):
-        super().__init__(category_name="tti",config_path=config_path)
+    def __init__(self, type,config_path=None):
+        super().__init__(category_name="tti",type=type,config_path=config_path)
 
-    def __call__(self, type, prompt, generator_name=None, stream=True, **generator_params):
+    def __call__(self, prompt:str, generator_name=None, stream=True, **generator_params):
         if generator_name:
             raise Exception("Customed generator_name not supported.")
         if not prompt:
             raise Exception("The parameter 'input' is required.")
 
-        if type == "openai":
+        if self.type == "openai":
             return self.openai_tti(prompt=prompt, **generator_params)
         
-        if type == "gai":
+        if self.type == "gai":
             data = {
                 "prompt": prompt,
                 **generator_params
@@ -50,8 +50,7 @@ class TTIClient(ClientBase):
             prompt=prompt,
             size="1024x1024",
             quality="standard",
-            n=1,
-            **generator_params
+            n=1
             )
         response = http_get(response.data[0].url)
 

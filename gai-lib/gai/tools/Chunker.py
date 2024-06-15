@@ -16,7 +16,7 @@ class Chunker:
             if chunk_overlap is None:
                 chunk_overlap = 200
             chunks_dir = file_utils.get_chunk_dir("/tmp",chunk_hash)
-            file_utils.split_chunks(text=text, 
+            file_utils.split_text(text=text, 
                 chunks_dir=chunks_dir,
                 chunk_size=chunk_size,
                 chunk_overlap=chunk_overlap)

@@ -1,6 +1,6 @@
 import os,torch,gc,json,re
-from gai.common.utils import this_dir, get_app_path
-from gai.common.generators_utils import chat_string_to_list, has_ai_placeholder,apply_tools_message,chat_list_to_string,format_list_to_prompt, apply_schema_prompt, get_tools_schema
+from gai.common.utils import get_app_path
+from gai.common.generators_utils import chat_string_to_list, apply_tools_message,format_list_to_prompt, apply_schema_prompt, get_tools_schema
 from gai.common.logging import getLogger, configure_loglevel
 configure_loglevel()
 logger = getLogger(__name__)
@@ -11,7 +11,6 @@ from exllamav2 import(
 )
 from exllamav2.cache import ExLlamaV2Cache_Q4
 from exllamav2.generator import (
-    ExLlamaV2BaseGenerator,
     ExLlamaV2Sampler,
     ExLlamaV2StreamingGenerator,
 )
@@ -26,24 +25,6 @@ from exllamav2.generator.filters.prefix import ExLlamaV2PrefixFilter
 
 class ExLlamav2_TTT:
 
-    param_whitelist = [
-        "temperature",
-        "top_k",
-        "top_p",
-        "min_p",
-        "typical",
-        "token_repetition_penalty_max",
-        "token_repetition_penalty_sustain",
-        "token_repetition_penalty_decay",
-        "beams",
-        "beam_length",
-        "max_new_tokens",
-        "stream",
-        "tools",
-        "tool_choice",
-        "seed",
-    ]
-
     def __init__(self, gai_config):
         if (gai_config is None):
             raise Exception("ExLlama_TTT2: gai_config is required")
@@ -53,8 +34,9 @@ class ExLlamav2_TTT:
             raise Exception("ExLlama_TTT2: model_basename is required")
 
         self.gai_config = gai_config
-        self.model_filepath = os.path.join(get_app_path(
+        self.model_dir = os.path.join(get_app_path(
         ), gai_config["model_path"])
+
         self.model = None
         self.tokenizer = None
         self.client = None
@@ -63,15 +45,14 @@ class ExLlamav2_TTT:
     def load(self):
         self.unload()
         logger.info(
-            f"ExLlama_TTT2.load: Loading model from {self.model_filepath}")
+            f"ExLlama_TTT2.load: Loading model from {self.model_dir}")
 
         #config
         exllama_config = ExLlamaV2Config()
-        exllama_config.model_dir = self.model_filepath
-
+        exllama_config.model_dir = self.model_dir
         exllama_config.prepare()
-        exllama_config.max_seq_len = self.gai_config.get("max_seq_len", 8096)
-        exllama_config.no_flash_attn = self.gai_config.get("no_flash_attn", True)
+        exllama_config.max_seq_len = self.gai_config.get("max_seq_len",8192)
+        exllama_config.no_flash_attn = self.gai_config.get("no_flash_attn",True)
         self.exllama_config=exllama_config
 
         #model
@@ -194,10 +175,9 @@ class ExLlamav2_TTT:
 
     # Although support for streaming tools is implemented but it is not as efficient as the non-streaming tools.
     # Recommend to use non-streaming tools for now.
-    def _streaming(self, prompt, settings, max_tokens, stop_conditions,schema=None, tools=None, seed=None):
+    def _streaming(self, prompt, settings, max_new_tokens, stop_conditions,schema=None, tools=None, seed=None):
         generator=ExLlamaV2StreamingGenerator(self.model, self.cache, self.tokenizer)
         generator.warmup()
-        seed=1234
         ids = self.tokenizer.encode(prompt)
 
         generator.set_stop_conditions(stop_conditions=stop_conditions)
@@ -289,7 +269,7 @@ class ExLlamav2_TTT:
                 yield ChunkOutputBuilder.BuildContentBody(generator=self.gai_config["model_name"],content=chunk)                    
 
                 response_tokens += 1
-                if response_tokens == max_tokens:
+                if response_tokens == max_new_tokens:
                     if self.tokenizer.eos_token_id in generator.stop_tokens:
                         responses_ids[-1] = torch.cat([responses_ids[-1], self.tokenizer.single_token(self.tokenizer.eos_token_id)], dim = -1)
                     break
@@ -297,7 +277,7 @@ class ExLlamav2_TTT:
                     yield ChunkOutputBuilder.BuildContentTail(generator=self.gai_config["model_name"],finish_reason="stop")
                     return
 
-    def _generating(self, prompt, settings, max_tokens, schema, tools, stop_conditions, seed=None):
+    def _generating(self, prompt, settings, max_new_tokens, schema, tools, stop_conditions, seed=None):
         import ast
         generator=ExLlamaV2DynamicGenerator(model=self.model, cache=self.cache, tokenizer=self.tokenizer,paged=False)
         generator.warmup()
@@ -310,8 +290,9 @@ class ExLlamav2_TTT:
         while not response:
             response=generator.generate(
                 prompt=prompt, 
+                token_healing=True,
                 gen_settings=settings, 
-                max_new_tokens=max_tokens, 
+                max_new_tokens=max_new_tokens, 
                 seed=seed, 
                 stop_conditions=stop_conditions,
                 add_bos=True,
@@ -319,6 +300,11 @@ class ExLlamav2_TTT:
                 completion_only=True)
             if schema:
                 try:
+                    
+                    # It seems like Llama3 stop condition is not working unless decode_special_tokens is true.
+                    # No time to fix. Hardcoding the removal of the header id for Llama3. To be observed.
+
+                    response=response.replace("<|start_header_id|>","")
                     json_data = json.loads(response)
                     validate(json_data, schema)
                 except Exception as e:
@@ -327,7 +313,7 @@ class ExLlamav2_TTT:
         finish_reason=""        
         outputs = self.tokenizer.encode(response)
         output_len = len(outputs[0])
-        if output_len == max_tokens:
+        if output_len == max_new_tokens:
             finish_reason="length"
         else:
             finish_reason="stop"
@@ -345,7 +331,7 @@ class ExLlamav2_TTT:
                         new_tokens=output_len
                     )
                 function_name=json_data["function"]["name"]
-                function_arguments=json_data["function"]["arguments"]
+                function_arguments=json.dumps(json_data["function"]["arguments"])
                 logger.debug(f"ExLlama_TTT2._generating: function_name={function_name} function_arguments={function_arguments}")
                 return OutputBuilder.BuildTool(
                     generator=self.gai_config["model_name"],
@@ -366,28 +352,45 @@ class ExLlamav2_TTT:
             logger.debug(f"ExLlama_TTT2._generating: content={response.lstrip()}")
         return chat_completion
 
-    def create(self, messages, stream=True, **model_params):
+    def create(self, 
+               messages: str|list, 
+               stream:bool=True, 
+               max_new_tokens:int=None, 
+               temperature:float=None, 
+               top_k:float=None, 
+               top_p:float=None,
+               tools:dict=None,
+               tool_choice:str='auto',
+               schema:dict=None):
+        
+        if not self.model:
+            self.load()
+
         # settings
         settings = ExLlamaV2Sampler.Settings()
-        settings.temperature = model_params.pop("temperature",0.85)
-        settings.top_k = model_params.pop("top_k",50)
-        settings.top_p = model_params.pop("top_p",0.8)
+        # temperature
+        settings.temperature=temperature or self.gai_config["hyperparameters"].get("temperature",0.85)
+        # top_k
+        settings.top_k=top_k or self.gai_config["hyperparameters"].get("top_k",50)
+        # top_p
+        settings.top_p=top_p or self.gai_config["hyperparameters"].get("top_p",0.8)
+        # max_new_tokens
+        max_new_tokens=max_new_tokens or self.gai_config["hyperparameters"].get("max_new_tokens",100)
+        # stop_token
+        stop_conditions=self.gai_config.get("stop_conditions",[self.tokenizer.eos_token_id])
 
-        # prompt
+        # messages -> list
         if isinstance(messages,str):
-            messages = chat_string_to_list(messages)
+            messages = chat_string_to_list(messages=messages)
 
         # tools
-        tools = model_params.get("tools", None)
         if tools:
-            messages = apply_tools_message(messages, **model_params)
-            model_params["schema"]=get_tools_schema()
+            messages = apply_tools_message(messages=messages,tools=tools,tool_choice=tool_choice)
+            schema=get_tools_schema()
             settings.temperature=0
-
         # schema
-        schema = model_params.get("schema", None)
         if schema:
-            messages = apply_schema_prompt(messages, **model_params)
+            messages = apply_schema_prompt(messages=messages, schema=schema)
             parser = JsonSchemaParser(schema)
 
             # Building the tokenizer data once is a performance optimization, it saves preprocessing in subsequent calls.
@@ -399,49 +402,20 @@ class ExLlamav2_TTT:
         prompt = format_list_to_prompt(messages=messages, format_type=prompt_format)
         logger.info(f"ExLlama_TTT2.create: prompt={prompt} schema={schema} tools={tools} prompt_format={prompt_format}")
 
-        # stop_token
-        stop_conditions=[self.tokenizer.eos_token_id]
-        if prompt_format == "llama3":
-            stop_conditions=[self.tokenizer.eos_token_id,self.tokenizer.single_id("<|eot_id|>")]
-        if prompt_format == "mistral":
-            stop_conditions=[
-                "<s>",
-                "</s>",
-                "user:"]
-
-        # max_tokens
-        max_tokens=300
-        if not max_tokens:
-            max_tokens=model_params.pop("max_tokens",None)
-        if not max_tokens:
-            max_tokens=model_params.pop("max_new_tokens",None)
-
-        if not stream:
-            response = self._generating(
-                prompt,
-                settings,
-                max_tokens,
-                schema=schema,
-                tools=tools,
-                stop_conditions=stop_conditions,
-            )
-            return response
-
-        if tools or schema:
-            response = self._generating(
+        if stream and not tools and not schema:
+            return (chunk for chunk in self._streaming(
                 prompt=prompt,
                 settings=settings,
-                max_tokens=max_tokens,
-                schema=schema,
-                tools=tools,
+                max_new_tokens=max_new_tokens,
                 stop_conditions=stop_conditions,
-            )
-            return response
-    
-        return (chunk for chunk in self._streaming(
+            ))
+        
+        response = self._generating(
             prompt=prompt,
             settings=settings,
-            max_tokens=max_tokens,
+            max_new_tokens=max_new_tokens,
+            schema=schema,
+            tools=tools,
             stop_conditions=stop_conditions,
-        ))
-        
+        )
+        return response

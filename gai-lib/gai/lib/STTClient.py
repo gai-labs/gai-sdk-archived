@@ -2,43 +2,47 @@ from gai.common.utils import get_lib_config
 from gai.common.http_utils import http_post
 from gai.lib.ClientBase import ClientBase
 from gai.common.logging import getLogger
+from pydantic import BaseModel
 logger = getLogger(__name__)
+
+class Transcription(BaseModel):
+    text:str
 
 class STTClient(ClientBase):
 
-    def __init__(self, config_path=None):
-        super().__init__(category_name="stt",config_path=config_path)
+    def __init__(self, type, config_path=None):
+        super().__init__(category_name="stt",type=type,config_path=config_path)
 
-    def __call__(self, type, generator_name=None, file=None, file_path=None):
+    def __call__(self, generator_name=None, file=None, file_path=None):
 
         if generator_name:
             raise Exception("Customed generator_name not supported.")
 
-        if type=="openai":
+        if self.type=="openai":
             return self.openai_whisper(file=file)
 
-        if file_path:
-            with open(file_path, "rb") as f:
-                data = f.read()
-            files = {
-                "file": (file_path, data)
-            }
+        if self.type=="gai":
 
-            url = self._get_gai_url()
-            response = http_post(url, files=files)
-            response.decode = lambda: response.json()["text"]
-            return response
+            if file_path:
+                with open(file_path, "rb") as f:
+                    data = f.read()
+                files = {
+                    "file": (file_path, data)
+                }
 
-        if file:
-            files = {
-                "file": (file.name, file.read())
-            }
-            url = self._get_gai_url()
-            response = http_post(url, files=files)
-            response.decode = lambda: response.json()["text"]
-            return response
+                url = self._get_gai_url()
+                response = http_post(url, files=files)
+                return Transcription(text=response.json()["text"])
 
-        raise Exception("No file provided")
+            if file:
+                files = {
+                    "file": (file.name, file.read())
+                }
+                url = self._get_gai_url()
+                response = http_post(url, files=files)
+                return Transcription(text=response.json()["text"])
+
+            raise Exception("No file provided")
 
     def openai_whisper(self, **model_params):
         import os

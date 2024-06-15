@@ -1,9 +1,10 @@
 import base64
 import hashlib
+import uuid
 import os, zipfile
 import tempfile,shutil,re
 from . import constants,utils
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from gai.common.TextSplitter import TextSplitter
 
 import mimetypes
 
@@ -62,7 +63,10 @@ def unzip_all(file_or_dir, dest_dir=None):
     
     return temp_dir
 
-# Purpose: Create a directory using the url or path in ~/.locallm/chunks directory
+'''
+Description: Create a directory using the url or path
+Example: get_chunk_dir("/tmp",chunk_hash)
+'''
 def get_chunk_dir(chunk_dir, path_or_url):
     if (utils.is_url(path_or_url)):
         path_or_url = path_or_url.replace("://","_").replace("/","_").replace(".","_")
@@ -71,17 +75,78 @@ def get_chunk_dir(chunk_dir, path_or_url):
     chunk_name=re.sub(r'^_+', '', path_or_url)
     return os.path.join(chunk_dir, chunk_name)
 
-# Purpose: Create a chunk id using sha256 of its context
-def create_chunk_id_base64(text):
-    """
+'''
+Name: split_text
+Description:
+    The function is based on LangChain's RecursiveCharacterTextSplitter to split the text into chunks and write each chunk into a subdirectory.
+Parameters:
+    text: The input text to be split into chunks.
+    sub_dir: (default:None) /tmp/chunks/{sub_dir} for saving the chunks. If sub_dir is not provided, a GUID named subdirectory will be used.
+    chunk_size: (default:2000) The size of each chunk in characters.
+    chunk_overlap: (default:200) The overlap between chunks in characters.
+Output:
+    dest_dir: Directory path is returned as output.
+    chunks are saved into files with integer name as running order followed by extension ".txt"
+Example:
+    split_text("This is a test",chunk_overlap=200,chunk_overlap=0) will create file at /tmp/chunks/<guid>/chunk_id
+    split_text("This is another test",sub_dir="test",chunk_overlap=200,chunk_overlap=0) will create file at /tmp/chunks/test/chunk_id
+'''
+def split_text(text, sub_dir=None ,chunk_size=2000,chunk_overlap=200):
+
+    # Anchor to this to avoid tampering other files
+    base_dir='/tmp/chunks'
+
+    # Delete and create dest_dir
+    if (sub_dir is None):
+        sub_dir = str(uuid.uuid4()).replace("-","")
+    dest_dir = os.path.join(base_dir,sub_dir)
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)    
+    os.makedirs(dest_dir)
+
+    splitter = TextSplitter(
+        chunk_size=chunk_size,        # approx 512 tokens
+        chunk_overlap=chunk_overlap,     # 10% overlap
+        length_function=len,
+        is_separator_regex=False
+    )
+    chunks = splitter.create_documents([text])
+    for chunk_fname,chunk in enumerate(chunks):
+        chunk_fname = os.path.join(dest_dir,f"{chunk_fname}.txt")
+
+        # Start writing the chunk
+        with open(chunk_fname,'w') as f:
+            f.write(chunk.page_content)
+    return dest_dir
+
+'''
+Name: create_chunk_id_hex
+Description:
+    The function uses sha256 to create a unique id in hexadecimal for the chunk.
+Parameters:
+    text: The input text to be converted in SHA256 hash hexadecimal.
+Example:
+    create_chunk_id_hex("This is a test") will return the SHA256 hash of the input text.
+'''
+def create_chunk_id_hex(text):
+    import hashlib
+    if isinstance(text, bytes):
+        byte_text = text
+    else:
+        # If 'text' is not a byte string (assuming it's a str), encode it
+        byte_text = text.encode('utf-8')    
+    return hashlib.sha256(byte_text).hexdigest()
+
+'''
+Name: create_chunk_id_base4
+Description:
     Generates a Base64 encoded SHA-256 hash of the input text.
-
-    Args:
+Parameters:
     text (str or bytes): The input text to hash.
-
-    Returns:
+Returns:
     str: The Base64 encoded SHA-256 hash of the input text.
-    """
+'''
+def create_chunk_id_base64(text):
     if isinstance(text, bytes):
         byte_text = text
     else:
@@ -91,36 +156,8 @@ def create_chunk_id_base64(text):
     # Generate SHA256 hash (in binary form)
     hash_digest = hashlib.sha256(byte_text).digest()
     
-    # Convert the binary hash to Base64
-    base64_encoded = base64.b64encode(hash_digest).decode()
+    # Convert the binary hash to URL and filesystem safe Base64
+    base64_encoded_safe = base64.urlsafe_b64encode(hash_digest).decode().rstrip('=')
     
-    return base64_encoded
-
-# Purpose: Split text using LangChain's recursive text splitter into chunks in the chunks_dir
-def split_chunks(text, chunks_dir=None,chunk_size=2000,chunk_overlap=200):
-    
-    # Remove existing chunks
-    if (chunks_dir != None):
-        if os.path.exists(chunks_dir):
-            shutil.rmtree(chunks_dir)    
-        os.makedirs(chunks_dir)
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,        # approx 512 tokens
-        chunk_overlap=chunk_overlap,     # 10% overlap
-        length_function=len,
-        is_separator_regex=False
-    )
-    chunks = splitter.create_documents([text])
-    for chunk in chunks:
-        chunk_id = create_chunk_id_base64(chunk.page_content)
-        chunk.metadata = {
-            "chunk_id": chunk_id,
-            "chunk_size": len(chunk.page_content)
-        }
-        if (chunks_dir != None):
-                chunk_fname = os.path.join(chunks_dir,chunk_id)
-                with open(chunk_fname,'w') as f:
-                    f.write(chunk.page_content)
-    return chunks
+    return base64_encoded_safe
 

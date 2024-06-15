@@ -7,18 +7,18 @@ logger = getLogger(__name__)
 
 class TTSClient(ClientBase):
 
-    def __init__(self, config_path=None):
-        super().__init__(category_name="tts",config_path=config_path)
+    def __init__(self, type, config_path=None):
+        super().__init__(category_name="tts", type=type, config_path=config_path)
 
-    def __call__(self, type, input, generator_name=None, stream=True, **generator_params):
+    def __call__(self, input, generator_name=None, stream=True, **generator_params):
         if generator_name:
             raise Exception("Customed generator_name not supported.")
         if not input:
             raise Exception("The parameter 'input' is required.")
 
-        if type == "openai":
+        if self.type == "openai":
             return self.openai_tts(input=input, **generator_params)
-        if type == "gai":
+        if self.type == "gai":
             data = {
                 "input": input,
                 "stream": stream,

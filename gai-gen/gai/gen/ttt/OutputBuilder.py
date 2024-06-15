@@ -38,10 +38,10 @@ class OutputBuilder:
                             ).build()
 
     @staticmethod
-    def BuildContent(generator,finish_reason, content,prompt_tokens,new_tokens):
+    def BuildContent(generator,finish_reason, content,prompt_tokens,new_tokens,logprobs=None):
         return OutputBuilder(
             ).add_chat_completion(generator=generator
-                ).add_choice(finish_reason=finish_reason
+                ).add_choice(finish_reason=finish_reason,logprobs=logprobs
                     ).add_content(
                         content=content
                         ).add_usage(
@@ -66,12 +66,13 @@ class OutputBuilder:
             print("OutputBuilder.add_chat_completion:",e)
             raise e
 
-    def add_choice(self,finish_reason):
+    def add_choice(self,finish_reason,logprobs=None):
         try:
             self.result.choices.append(Choice(
                 finish_reason=finish_reason,
                 index=0,
-                message=ChatCompletionMessage(role='assistant',content=None, function_call=None, tool_calls=[])
+                message=ChatCompletionMessage(role='assistant',content=None, function_call=None, tool_calls=[]),
+                logprobs=logprobs,
             ))
             return self
         except Exception as e:

@@ -65,7 +65,7 @@ def configure_semaphore():
     if use_semaphore:
         logger.info("Using semaphore")
         import asyncio
-        semaphore = asyncio.Semaphore(1)
+        semaphore = asyncio.Semaphore(2)
     return semaphore
 
 async def acquire_semaphore(semaphore):

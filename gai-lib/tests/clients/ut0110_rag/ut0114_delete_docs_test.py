@@ -2,7 +2,7 @@ import asyncio,json
 from gai.common.errors import ApiException
 from gai.common.logging import getLogger
 logger = getLogger(__name__)
-logger.setLevel("DEBUG")
+
 
 config_type = "local"
 from gai.common.utils import this_dir

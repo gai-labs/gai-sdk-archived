@@ -4,7 +4,6 @@ import os
 from gai.common.utils import get_gen_config
 from gai.common.logging import getLogger
 logger = getLogger(__name__)
-logger.setLevel("DEBUG")
 
 '''
 This is class is used by the client-side websocket to receive status updates from the server.

@@ -25,20 +25,9 @@ class OpenAI_TTS:
     def unload(self):
         return self
 
-    def create(self,**model_params):
+    def create(self,input,voice="alloy"):
         if not self.client:
             self.load()
-
-        input = model_params.pop("input",None)
-        if not input:
-            raise Exception("Missing input parameter")
-
-        voice = model_params.pop("voice",None)        
-        if not voice:
-            voice = "alloy"
-
-        model_params.pop("stream",None)
-        model_params.pop("language",None)
-        response = self.client.audio.speech.create(model='tts-1',input=input,voice=voice,**model_params)
+        response = self.client.audio.speech.create(model='tts-1-hd',input=input,voice=voice)
         return response.content
 

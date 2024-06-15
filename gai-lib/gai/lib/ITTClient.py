@@ -10,16 +10,16 @@ logger = getLogger(__name__)
 
 class ITTClient(ClientBase):
 
-    def __init__(self, config_path=None):
-        super().__init__(category_name="itt",config_path=config_path)
+    def __init__(self, type, config_path=None):
+        super().__init__(category_name="itt",type=type,config_path=config_path)
 
-    def __call__(self, type, generator_name=None, messages=None, stream=True, **generator_params):
+    def __call__(self, generator_name=None, messages=None, stream=True, **generator_params):
         if generator_name:
             raise Exception("Customed generator_name not supported.")
 
-        if type == "openai":
+        if self.type == "openai":
             return self.openai_vision(messages=messages, stream=stream, **generator_params)
-        if type == "gai":
+        if self.type == "gai":
             return self.api(messages=messages, stream=stream, **generator_params)
 
         raise Exception("Generator type not supported.")

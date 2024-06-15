@@ -178,12 +178,10 @@ def get_tools_schema():
         "required": ["function"]            
     }
 
-def apply_tools_message( messages: List, **model_params):
+def apply_tools_message( messages: List, tools:dict, tool_choice:str):
 
     # Check if tools are required and add a tools prompt
-    if "tools" in model_params and model_params["tools"] is not None:
-
-        tool_choice = model_params.get("tool_choice","auto")
+    if tools:
 
         # For now, we will implement only for "auto"
         if tool_choice == "auto":
@@ -207,7 +205,6 @@ def apply_tools_message( messages: List, **model_params):
             }}
             """}
 
-            tools = model_params["tools"]
             try:
                 system_message["content"] = system_message["content"].format(
                     tools=tools)
@@ -229,10 +226,7 @@ def apply_tools_message( messages: List, **model_params):
 
     return messages
 
-def apply_schema_prompt( messages: List, **model_params):
-
-    # Check if schemas are required
-    schema = model_params.get("schema",None)
+def apply_schema_prompt( messages: List, schema):
 
     # Apply schema. Note that tool schema will override any provided schema.
     if schema:

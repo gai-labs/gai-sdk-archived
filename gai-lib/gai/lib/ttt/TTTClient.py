@@ -14,33 +14,35 @@ load_dotenv()
 
 class TTTClient(ClientBase):
 
-    def __init__(self, config_path=None):
-        super().__init__(category_name="ttt",config_path=config_path)
+    def __init__(self, type, config_path=None):
+        super().__init__(category_name="ttt", type=type, config_path=config_path)
 
-    def __call__(self, type, generator_name=None, messages=None, stream=True, **generator_params):
-        if generator_name:
-            raise Exception("Customed generator_name not supported.")
+    def __call__(self, messages:str|list, stream:bool=True, **generator_params):
+
+        if isinstance(messages, str):
+            messages = chat_string_to_list(messages)
 
         # If generator is openai-gpt4 or claude2-100k, 
         # use the respective API client instead of generator service.
-        if type == "openai":
-            return self.gpt_4(messages=messages, stream=stream, **generator_params)
-        if type == "anthropic":
-            return self.claude_2(messages=messages, stream=stream, **generator_params)
-        if type == "gai":
-            return self.api(messages=messages, stream=stream, **generator_params)
+        if self.type == "openai":
+            return self.gpt_4(messages, stream=stream, **generator_params)
+        if self.type == "anthropic":
+            return self.claude_2(messages, stream=stream, **generator_params)
+        if self.type == "gai":
+            return self.api(messages, stream=stream, **generator_params)
 
         raise Exception("Generator type not supported.")
 
 
-    def api(self, messages=None, stream=True, **generator_params):
-        logger.debug(f'TTTClient.api: messages={messages}')
+    def api(self, messages:list, stream:bool, **generator_params):
+        #logger.debug(f'TTTClient.api: messages={messages}')
+
+        if isinstance(messages, str):
+            messages = chat_string_to_list(messages)
 
         if not messages:
             raise Exception("Messages not provided")
 
-        if isinstance(messages, str):
-            messages = chat_string_to_list(messages)
 
         data = { 
             "messages": messages,
@@ -53,7 +55,8 @@ class TTTClient(ClientBase):
                 yield ChunkWrapper(chunk)
 
         try:
-            response = http_post(self._get_gai_url(), data)
+            url = self._get_gai_url()
+            response = http_post(url, data)
         except ApiException as he:
 
             # Switch to long context
@@ -87,7 +90,7 @@ class TTTClient(ClientBase):
 
 
     # Call GPT-4 API
-    def gpt_4(self, messages=None, stream=True, **generator_params):
+    def gpt_4(self, messages:list, stream:bool, **generator_params):
         import os
 
         from openai import OpenAI
@@ -109,8 +112,7 @@ class TTTClient(ClientBase):
                 yield OpenAIChunkWrapper(chunk)
 
         model = "gpt-4"
-        if isinstance(messages, str):
-            messages = chat_string_to_list(messages)
+            
         response = client.chat.completions.create(
             model=model,
             messages=messages,
@@ -140,7 +142,7 @@ class TTTClient(ClientBase):
         return streamer(response)
 
     # Call Claude API
-    def claude_2(self, messages=None, stream=True, **generator_params):
+    def claude_2(self, messages:list, stream:bool, **generator_params):
         # import os
         # from anthropic import Anthropic
         # from dotenv import load_dotenv

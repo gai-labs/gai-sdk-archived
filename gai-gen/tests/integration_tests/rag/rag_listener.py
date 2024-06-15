@@ -2,7 +2,6 @@
 import asyncio
 from gai.common.logging import getLogger
 logger = getLogger(__name__)
-logger.setLevel("DEBUG")
 from gai.common.StatusListener import StatusListener
 
 async def callback(message):

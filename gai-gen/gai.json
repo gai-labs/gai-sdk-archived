@@ -2,11 +2,79 @@
     "gen": {
         "default": {
             "ttt": "mistral7b-exllama",
-            "ttt2": "mistral7b-exllama2",
+            "ttt2": "exllamav2-mistral7b",
             "tts": "xtts-2",
             "stt": "whisper-transformers",
             "itt": "llava-transformers",
             "rag": "instructor-rag"
+        },
+        "exllamav2-mistral7b": {
+            "model_name": "ttt-exllama2-mistral7b",
+            "type": "ttt",
+            "engine": "ExLlamaV2_TTT",
+            "model_path": "models/Mistral-7B-Instruct-v0.3-exl2",
+            "model_basename": "model",
+            "max_seq_len": 8192,
+            "prompt_format": "mistral",
+            "stop_conditions": ["<s>", "</s>", "user:"],
+            "hyperparameters": {
+                "temperature": 0.85,
+                "top_p": 0.8,
+                "top_k": 50,
+                "max_new_tokens": 100
+            },
+            "no_flash_attn": true,
+            "seed": null
+        },
+        "exllamav2-llama3": {
+            "model_name": "exllama2-llama3",
+            "type": "ttt",
+            "engine": "ExLlamaV2_TTT",
+            "model_path": "models/Meta-Llama-3-8B-Instruct-EXL2",
+            "model_basename": "model",
+            "max_seq_len": 8192,
+            "prompt_format": "llama3",
+            "stop_conditions": ["<|eot_id|>"],
+            "hyperparameters": {
+                "temperature": 0.85,
+                "top_p": 0.8,
+                "top_k": 50,
+                "max_new_tokens": 100
+            },
+            "no_flash_attn": true,
+            "seed": null
+        },
+        "llamacpp-llama3": {
+            "type": "ttt",
+            "model_name": "llamacpp-llama3",
+            "engine": "LlamaCpp_TTT",
+            "model_filepath": "models/LLaMA3-iterative-DPO-final-GGUF/LLaMA3-iterative-DPO-final-Q4_K_M.gguf",
+            "max_seq_len": 8192,
+            "prompt_format": "llama3",
+            "stop": ["<|eot_id|>"],
+            "hyperparameters": {
+                "max_tokens": 100,
+                "temperature": 1.31,
+                "top_k": 49,
+                "top_p": 0.14
+            },
+            "seed": null
+        },
+        "llamacpp-mistral7b": {
+            "type": "ttt",
+            "model_name": "llamacpp-mistral7b",
+            "engine": "LlamaCpp_TTT",
+            "model_filepath": "models/LLaMA3-iterative-DPO-final-GGUF/LLaMA3-iterative-DPO-final-Q4_K_M.gguf",
+            "max_seq_len": 8192,
+            "prompt_format": "llama3",
+            "stop": ["<|eot_id|>"],
+            "hyperparameters": {
+                "max_tokens": 100,
+                "temperature": 1.31,
+                "top_k": 49,
+                "top_p": 0.14
+            },
+            "seed": null
         },
         "gpt-4": {
             "type": "ttt",
