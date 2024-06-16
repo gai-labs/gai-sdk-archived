@@ -111,7 +111,13 @@ class TTTClient(ClientBase):
             for chunk in response:
                 yield OpenAIChunkWrapper(chunk)
 
-        model = "gpt-4"
+        model = "gpt-4o"
+
+        schema = generator_params.pop("schema", None)
+        if schema:
+            generator_params["response_format"]={
+                "type":"json_object"
+            }
             
         response = client.chat.completions.create(
             model=model,
