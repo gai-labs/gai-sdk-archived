@@ -17,17 +17,7 @@ class TTTClient(ClientBase):
     def __init__(self, type, config_path=None):
         super().__init__(category_name="ttt", type=type, config_path=config_path)
 
-    def __call__(self, 
-                 messages:str|list, 
-                 stream:bool=True, 
-                 max_new_tokens:int=None, 
-                 max_tokens:int=None, 
-                 temperature:float=None, 
-                 top_p:float=None, 
-                 top_k:float=None,
-                 schema:dict=None,
-                 tools:list=None,
-                 tool_choice:str=None):
+    def __call__(self, messages:str|list, stream:bool=True, **generator_params):
 
         if isinstance(messages, str):
             messages = chat_string_to_list(messages)
@@ -35,29 +25,16 @@ class TTTClient(ClientBase):
         # If generator is openai-gpt4 or claude2-100k, 
         # use the respective API client instead of generator service.
         if self.type == "openai":
-            return self.gpt_4(messages, 
-                              stream=stream, 
-                              max_tokens=max_tokens, 
-                              temperature=temperature, 
-                              top_p=top_p, 
-                              top_k=top_k, 
-                              schema=schema,
-                              tool_choice=tool_choice,
-                              tools=tools)
+            return self.gpt_4(messages, stream=stream, **generator_params)
+        if self.type == "anthropic":
+            return self.claude_2(messages, stream=stream, **generator_params)
         if self.type == "gai":
-            return self.api(messages, 
-                            stream=stream, 
-                            max_new_tokens=max_new_tokens, 
-                            temperature=temperature, 
-                            top_p=top_p, 
-                            top_k=top_k, 
-                            schema=schema,
-                            tools=tools)
+            return self.api(messages, stream=stream, **generator_params)
 
         raise Exception("Generator type not supported.")
 
 
-    def api(self, messages:list, stream:bool, max_new_tokens:int, temperature:float, top_p:float, top_k:float, schema:dict, tools:list):
+    def api(self, messages:list, stream:bool, **generator_params):
         #logger.debug(f'TTTClient.api: messages={messages}')
 
         if isinstance(messages, str):
@@ -70,12 +47,7 @@ class TTTClient(ClientBase):
         data = { 
             "messages": messages,
             "stream": stream,
-            "max_new_tokens": max_new_tokens,
-            "temperature": temperature,
-            "top_p": top_p,
-            "top_k": top_k,
-            "schema": schema,
-            "tools": tools
+            **generator_params
         }
 
         def streamer(response):
@@ -118,16 +90,18 @@ class TTTClient(ClientBase):
 
 
     # Call GPT-4 API
-    def gpt_4(self, messages:list, stream:bool, max_tokens:int, temperature:float, top_p:float, top_k:float, schema:dict, tools:list,tool_choice:str):
+    def gpt_4(self, messages:list, stream:bool, **generator_params):
         import os
 
         from openai import OpenAI
 
-        # Get API KEY
-        OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", None)
+        # Try to get API KEY from gai.json
+        OPENAI_API_KEY = generator_params.pop("OPENAI_API_KEY", None)
         if not OPENAI_API_KEY:
-            raise Exception(
-                "OPENAI_API_KEY not found in environment variables")
+            # Then try to find it in environment variables
+            if not os.environ.get("OPENAI_API_KEY"):
+                raise Exception(
+                    "OPENAI_API_KEY not found in environment variables")
         client = OpenAI(api_key=OPENAI_API_KEY)
 
         if not messages:
@@ -139,23 +113,17 @@ class TTTClient(ClientBase):
 
         model = "gpt-4o"
 
-        response_format = None
+        schema = generator_params.pop("schema", None)
         if schema:
-            response_format={
+            generator_params["response_format"]={
                 "type":"json_object"
             }
-            messages[-2]["content"] += f"Format your response in this json schema: {schema}"
             
         response = client.chat.completions.create(
             model=model,
             messages=messages,
             stream=stream,
-            max_tokens=max_tokens,
-            response_format=response_format,
-            temperature=temperature,
-            top_p=top_p,
-            tool_choice=tool_choice,
-            tools=tools,
+            **generator_params
         )
 
         if not stream:
