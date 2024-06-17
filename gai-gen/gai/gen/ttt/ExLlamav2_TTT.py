@@ -288,6 +288,7 @@ class ExLlamav2_TTT:
 
         response=""
         from jsonschema import validate
+        json_data=None
         while not response:
             response=generator.generate(
                 prompt=prompt, 
@@ -319,9 +320,11 @@ class ExLlamav2_TTT:
         else:
             finish_reason="stop"
 
-        if tools:
-            if "function" in json_data:
+        if json_data:
+            # If json_data is not empty that means the call is either a function call (return "text" or "function") or JSON output
+            if tools and "function" in json_data:
                 if json_data["function"]["name"] == "text":
+                    # Function call return text
                     function_text=json_data["function"]["arguments"]["text"]
                     logger.debug(f"ExLlama_TTT2._generating: function_text={function_text}")
                     return OutputBuilder.BuildContent(
@@ -331,6 +334,7 @@ class ExLlamav2_TTT:
                         prompt_tokens=input_len,
                         new_tokens=output_len
                     )
+                # Function call return JSON
                 function_name=json_data["function"]["name"]
                 function_arguments=json.dumps(json_data["function"]["arguments"])
                 logger.debug(f"ExLlama_TTT2._generating: function_name={function_name} function_arguments={function_arguments}")
@@ -340,9 +344,20 @@ class ExLlamav2_TTT:
                     function_arguments=function_arguments,
                     prompt_tokens=input_len,
                     new_tokens=output_len
-                    )            
-            raise Exception("ExLlama_TTT2: Tool not supported")
+                    )
+            else:
+                # JSON output
+                chat_completion = OutputBuilder.BuildContent(
+                    generator=self.gai_config["model_name"],
+                    finish_reason=finish_reason,
+                    content=response.lstrip(),
+                    prompt_tokens=input_len,
+                    new_tokens=output_len
+                )
+                logger.debug(f"ExLlama_TTT2._generating: content={response.lstrip()}")
+                return chat_completion
         else:
+            # The result is a text output.
             chat_completion = OutputBuilder.BuildContent(
                 generator=self.gai_config["model_name"],
                 finish_reason=finish_reason,
