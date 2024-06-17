@@ -231,7 +231,7 @@ class LlamaCpp_TTT:
         self.messages=messages
 
         # tools
-        if tools:
+        if tools and tool_choice != "none":
             messages = apply_tools_message(messages=messages,tools=tools,tool_choice=tool_choice)
             schema= get_tools_schema()
             temperature=0

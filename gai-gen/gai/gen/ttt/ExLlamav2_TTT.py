@@ -69,6 +69,7 @@ class ExLlamav2_TTT:
         self.prompt_format=self.gai_config.get("prompt_format")
 
         #schema
+        # Building the tokenizer data once is a performance optimization, it saves preprocessing in subsequent calls.
         self.tokenizer_data = build_token_enforcer_tokenizer_data(self.tokenizer)
 
         return self
@@ -384,23 +385,22 @@ class ExLlamav2_TTT:
             messages = chat_string_to_list(messages=messages)
 
         # tools
-        if tools:
+        if tools and tool_choice != "none":
             messages = apply_tools_message(messages=messages,tools=tools,tool_choice=tool_choice)
             schema=get_tools_schema()
             settings.temperature=0
+
         # schema
         if schema:
             messages = apply_schema_prompt(messages=messages, schema=schema)
             parser = JsonSchemaParser(schema)
-
-            # Building the tokenizer data once is a performance optimization, it saves preprocessing in subsequent calls.
             settings.filters = [ExLlamaV2TokenEnforcerFilter(parser, self.tokenizer_data),
                                 ExLlamaV2PrefixFilter(self.model, self.tokenizer, ["{","\n\n{"])]
         
         # Format the list to corresponding model's prompt format
         prompt_format = self.gai_config.get("prompt_format")
         prompt = format_list_to_prompt(messages=messages, format_type=prompt_format)
-        logger.info(f"ExLlama_TTT2.create: prompt={prompt} schema={schema} tools={tools} prompt_format={prompt_format}")
+        logger.info(f"ExLlama_TTT2.create:\n\tprompt=`{prompt}`\n\tschema=`{schema}`\n\ttools=`{tools}`\n\tprompt_format=`{prompt_format}`")
 
         if stream and not tools and not schema:
             return (chunk for chunk in self._streaming(

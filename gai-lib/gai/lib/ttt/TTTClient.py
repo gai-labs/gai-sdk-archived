@@ -52,12 +52,13 @@ class TTTClient(ClientBase):
                             top_p=top_p, 
                             top_k=top_k, 
                             schema=schema,
+                            tool_choice=tool_choice,
                             tools=tools)
 
         raise Exception("Generator type not supported.")
 
 
-    def api(self, messages:list, stream:bool, max_new_tokens:int, temperature:float, top_p:float, top_k:float, schema:dict, tools:list):
+    def api(self, messages:list, stream:bool, max_new_tokens:int, temperature:float, top_p:float, top_k:float, schema:dict, tools:list, tool_choice:str):
         #logger.debug(f'TTTClient.api: messages={messages}')
 
         if isinstance(messages, str):
@@ -75,7 +76,8 @@ class TTTClient(ClientBase):
             "top_p": top_p,
             "top_k": top_k,
             "schema": schema,
-            "tools": tools
+            "tools": tools,
+            "tool_choice": tool_choice
         }
 
         def streamer(response):

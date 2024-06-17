@@ -21,7 +21,7 @@
                 "temperature": 0.85,
                 "top_p": 0.8,
                 "top_k": 50,
-                "max_new_tokens": 100
+                "max_new_tokens": 1000
             },
             "no_flash_attn": true,
             "seed": null
