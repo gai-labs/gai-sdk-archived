@@ -147,7 +147,13 @@ class TTTClient(ClientBase):
                 "type":"json_object"
             }
             messages[-2]["content"] += f"Format your response in this json schema: {schema}"
-            
+        
+        if not tools:
+            tool_choice=None
+        else:
+            if isinstance(tools,dict):
+                tools = [tool for tool in tools.values() if tool]
+
         response = client.chat.completions.create(
             model=model,
             messages=messages,
