@@ -16,7 +16,7 @@
             "model_basename": "model",
             "max_seq_len": 8192,
             "prompt_format": "mistral",
-            "stop_conditions": ["<s>", "</s>", "user:"],
+            "stop_conditions": ["<s>", "</s>", "user:", ".\n\n"],
             "hyperparameters": {
                 "temperature": 0.85,
                 "top_p": 0.8,

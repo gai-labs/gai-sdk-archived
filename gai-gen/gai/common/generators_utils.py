@@ -230,7 +230,11 @@ def apply_schema_prompt( messages: List, schema):
 
     # Apply schema. Note that tool schema will override any provided schema.
     if schema:
-        system_message={"role":"system","content":f"You will respond to the user's message based only on the following JSON schema {schema}. Begin your response with a curly bracket '{{' and end it with a curly bracket '}}'."}
+        system_message={"role":"system","content":f"""Begin your response with an open curly brace. Your response must be parseable by this json schema:
+        ```jsonschema
+        {schema}
+        ```"""}
+        #system_message={"role":"system","content":f"You will respond to the user's message based only on the following JSON schema {schema}. Begin your response with a curly bracket '{{' and end it with a curly bracket '}}'."}
 
         # Insert the system message immediately before the last user_message.                
         ai_placeholder = None
