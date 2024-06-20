@@ -1,38 +1,89 @@
+from enum import Enum
+from PIL import Image
+from io import BytesIO
 from gai.common.http_utils import http_post, http_get
 from gai.lib.ClientBase import ClientBase
 from gai.common.logging import getLogger
 logger = getLogger(__name__)
 import json, base64
 
+class TTIOutputType(Enum):
+    BYTES="bytes"
+    DATA_URL="data_url"
+    IMAGE="image"
+
 class TTIClient(ClientBase):
 
     def __init__(self, type,config_path=None):
         super().__init__(category_name="tti",type=type,config_path=config_path)
 
-    def __call__(self, prompt:str, generator_name=None, stream=True, **generator_params):
-        if generator_name:
-            raise Exception("Customed generator_name not supported.")
+    def __call__(self, 
+                 prompt:str, 
+                 negative_prompt:str=None,
+                 width:int=None,
+                 height:int=None,
+                 steps:int=None,
+                 output_type:TTIOutputType = TTIOutputType.BYTES
+                 ):
         if not prompt:
             raise Exception("The parameter 'input' is required.")
 
         if self.type == "openai":
-            return self.openai_tti(prompt=prompt, **generator_params)
+            return self.openai_tti(prompt=prompt,
+                                width=width,
+                                height=height,
+                                output_type=output_type)
         
         if self.type == "gai":
-            data = {
-                "prompt": prompt,
-                **generator_params
-            }
-            response = http_post(self._get_gai_url(), data)
-            base64_img=json.loads(response.content.decode("utf-8"))["images"][0]
-            image_data = base64.b64decode(base64_img)            
-            return image_data
-
+            return self.gai_tti(prompt=prompt,
+                                negative_prompt=negative_prompt, 
+                                width=width,
+                                height=height,
+                                steps=steps,
+                                output_type=output_type)
         raise Exception("Generator type not supported.")
-    
-    def openai_tti(self, prompt, **generator_params):
-        import os
-        import openai
+
+    def gai_tti(self, 
+                prompt:str,
+                negative_prompt:str,
+                width:int,
+                height:int,
+                steps:int,
+                output_type:TTIOutputType = TTIOutputType.BYTES
+                ):
+        negative_prompt = negative_prompt or "ugly, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, out of frame, ugly, extra limbs, bad anatomy, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, fused fingers, too many fingers, long neck, extra head, cloned head, extra body, cloned body, watermark. extra hands, clone hands, weird hand, weird finger, weird arm, (mutation:1.3), (deformed:1.3), (blurry), (bad anatomy:1.1), (bad proportions:1.2), out of frame, ugly, (long neck:1.2), (worst quality:1.4), (low quality:1.4), (monochrome:1.1), text, signature, watermark, bad anatomy, disfigured, jpeg artifacts, 3d max, grotesque, desaturated, blur, haze, polysyndactyly"
+        width = width or 512
+        height = height or 512
+        steps = steps or 1
+        data = {
+            "prompt": prompt,
+            "negative_prompt": negative_prompt,
+            "width": width,
+            "height": height,
+        }
+        response = http_post(self._get_gai_url(), data)
+        base64_img = json.loads(response.content.decode("utf-8"))["images"][0]
+        image_data = base64.b64decode(base64_img)
+        
+        if output_type == TTIOutputType.DATA_URL:
+            base64_encoded_data = base64.b64encode(image_data).decode('utf-8')
+            data_url = f"data:image/jpeg;base64,{base64_encoded_data}"
+            return data_url
+        elif output_type == TTIOutputType.IMAGE:
+            return Image.open(BytesIO(image_data))
+        elif output_type == TTIOutputType.BYTES:
+            return image_data
+        else:
+            raise Exception("Output type not supported.")
+
+
+    def openai_tti(self, 
+                prompt:str,
+                width:int,
+                height:int,
+                output_type:TTIOutputType = TTIOutputType.BYTES
+                ):
+        import os, openai
         from openai import OpenAI
         from dotenv import load_dotenv
         load_dotenv()
@@ -41,29 +92,25 @@ class TTIClient(ClientBase):
                 "OPENAI_API_KEY not found in environment variables")
         openai.api_key = os.environ["OPENAI_API_KEY"]
         client = OpenAI()
-
-        if not prompt:
-            raise Exception("Missing prompt parameter")
-        
+        width = width or 1024
+        height= height or 1024        
         response = client.images.generate(
             model='dall-e-3',
             prompt=prompt,
-            size="1024x1024",
+            size="{width}x{height}",
             quality="standard",
             n=1
             )
         response = http_get(response.data[0].url)
-
-        output_type = generator_params.pop("output_type", "bytes")
-        if (output_type == "bytes"):
-            return response.content
-        elif (output_type == "data_url"):
+        if output_type == TTIOutputType.DATA_URL:
             binary_data = response.content
             base64_encoded_data = base64.b64encode(binary_data).decode('utf-8')
             data_url = f"data:image/jpeg;base64,{base64_encoded_data}"
             return data_url
-        elif (output_type == "image"):
-            from PIL import Image
-            from io import BytesIO
+        elif output_type == TTIOutputType.IMAGE:
             return Image.open(BytesIO(response.content))
+        elif output_type == TTIOutputType.BYTES:
+            return response.content
+        else:
+            raise Exception("Output type not supported.")
 
