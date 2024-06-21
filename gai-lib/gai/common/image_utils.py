@@ -1,5 +1,9 @@
 import base64
 import imghdr
+from PIL import Image, ImageFilter
+from io import BytesIO
+from gai.common.logging import getLogger
+logger = getLogger(__name__)
 
 def read_to_base64(image_path):
     with open(image_path, "rb") as image_file:
@@ -34,3 +38,26 @@ def bytes_to_imageurl(img_data):
         "url":f"data:image/{img_type};base64,{base64_image}"
     }
     return image_url
+
+def resize_image(image_bin, width, height, useGaussian=True, imageType='PNG', blur_radius=0.5):
+    image = Image.open(BytesIO(image_bin))
+
+    if useGaussian:
+        # Apply a slight Gaussian blur
+        if image.mode != 'RGBA':
+                image = image.convert('RGBA')    
+        image = image.filter(ImageFilter.GaussianBlur(blur_radius))
+        # Resize the image using a high-quality downsampling filter
+
+    image = image.resize((width, height), Image.LANCZOS)
+
+    thumb_buffer = BytesIO()
+    image.save(thumb_buffer, format=imageType,compression_level=9,optimize=True)
+    logger.info(f"Resized image from 512x512 to {width}x{height}, original={len(image_bin)} bytesize={thumb_buffer.tell()}")
+
+    thumb_buffer.seek(0)
+    return thumb_buffer.getvalue()
+
+def save_image(image_bin, file_path):
+    image = Image.open(BytesIO(image_bin))
+    image.save(file_path)
