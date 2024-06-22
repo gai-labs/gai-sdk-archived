@@ -10,26 +10,28 @@ class TTSClient(ClientBase):
     def __init__(self, type, config_path=None):
         super().__init__(category_name="tts", type=type, config_path=config_path)
 
-    def __call__(self, input, generator_name=None, stream=True, **generator_params):
-        if generator_name:
-            raise Exception("Customed generator_name not supported.")
+    def __call__(self, input, stream=True, voice=None, language=None):
         if not input:
             raise Exception("The parameter 'input' is required.")
 
         if self.type == "openai":
-            return self.openai_tts(input=input, **generator_params)
+            return self.openai_tts(input=input, voice=voice)
         if self.type == "gai":
-            data = {
-                "input": input,
-                "stream": stream,
-                **generator_params
-            }
-            response = http_post(self._get_gai_url(), data)
-            return response
+            return self.gai_tts(input=input,voice=voice,stream=stream,language=language)
 
         raise Exception("Generator type not supported.")
 
-    def openai_tts(self, input, **generator_params):
+    def gai_tts(self, input, voice, stream,language):
+        data = {
+            "input": input,
+            "stream": stream,
+            "voice": voice,
+            "language": language
+        }
+        response = http_post(self._get_gai_url(), data)
+        return response
+
+    def openai_tts(self, input, voice):
         import os
         import openai
         from openai import OpenAI
@@ -44,13 +46,9 @@ class TTSClient(ClientBase):
         if not input:
             raise Exception("Missing input parameter")
 
-        voice = generator_params.pop("voice", None)
         if not voice:
             voice = "alloy"
 
-        generator_params.pop("language", None)
-        generator_params.pop("stream", None)
-
         response = client.audio.speech.create(
-            model='tts-1', input=input, voice=voice, **generator_params)
+            model='tts-1', input=input, voice=voice)
         return response.content

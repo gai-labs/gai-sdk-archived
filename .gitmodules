@@ -7,3 +7,6 @@
 [submodule "gai-gen/external/exllamav2"]
 	path = gai-gen/external/exllamav2
 	url = https://github.com/turboderp/exllamav2
+[submodule "gai-gen/external/TTS"]
+	path = gai-gen/external/TTS
+	url = https://github.com/coqui-ai/TTS

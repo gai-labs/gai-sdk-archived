@@ -1,0 +1,56 @@
+# syntax=docker/dockerfile:1.2
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-devel AS base
+ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
+ENV TORCH_CUDA_ARCH_LIST="7.5 8.0 8.6+PTX"
+
+# Step 1: Install build utils
+RUN apt update -y && apt install -y git python3-dev build-essential vim-tiny wget && \
+    pip install -U pip setuptools wheel && \
+    rm -rf /var/lib/apt/lists/*
+
+# Step 2: Build Wheels
+#DS_BUILD_TRANSFORMER_INFERENCE=1 pip install git+https://github.com/microsoft/DeepSpeed.git@v0.14.0;
+RUN git clone https://github.com/microsoft/DeepSpeed.git
+RUN cd DeepSpeed && git checkout v0.14.0 && \
+    DS_BUILD_TRANSFORMER_INFERENCE=1 python setup.py build_ext -j8 bdist_wheel
+
+
+# Step 3: Build Final
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime AS final
+
+ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
+RUN apt update -y && apt install -y git && \
+    pip install -U pip && \
+    rm -rf /var/lib/apt/lists/*
+
+ARG CATEGORY=tts
+ARG DEVICE=cuda
+
+# Create mount point for models
+ENV MODEL_PATH="/app/models"
+RUN echo '{"app_dir":"/app"}' > /root/.gairc    
+WORKDIR /app/models
+
+WORKDIR /app/wheels
+COPY --from=base /workspace/DeepSpeed/dist/*.whl /app/wheels/
+RUN pip install /app/wheels/deepspeed-0.14.0+ce78a632-cp310-cp310-linux_x86_64.whl; 
+WORKDIR /app
+
+# Copy Source Code
+COPY ./requirements_*.txt .
+COPY ./setup.py ./gai.json ./
+COPY ./gai ./gai
+RUN ln -s /app/gai /src
+
+# Install Gai
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements_${CATEGORY}.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -e .
+RUN pip install debugpy
+
+# # Start Server
+WORKDIR /app/gai/api
+#CMD ["bash","-c","python ${CATEGORY}_api.py"]
+
+CMD ["bash","-c","while true; do sleep 30; done;"]
