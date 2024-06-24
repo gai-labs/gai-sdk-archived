@@ -1,56 +1,79 @@
 # syntax=docker/dockerfile:1.2
-FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-devel AS base
-ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
-ENV TORCH_CUDA_ARCH_LIST="7.5 8.0 8.6+PTX"
 
-# Step 1: Install build utils
-RUN apt update -y && apt install -y git python3-dev build-essential vim-tiny wget && \
-    pip install -U pip setuptools wheel && \
-    rm -rf /var/lib/apt/lists/*
-
-# Step 2: Build Wheels
-#DS_BUILD_TRANSFORMER_INFERENCE=1 pip install git+https://github.com/microsoft/DeepSpeed.git@v0.14.0;
-RUN git clone https://github.com/microsoft/DeepSpeed.git
-RUN cd DeepSpeed && git checkout v0.14.0 && \
-    DS_BUILD_TRANSFORMER_INFERENCE=1 python setup.py build_ext -j8 bdist_wheel
-
-
-# Step 3: Build Final
-FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime AS final
-
-ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
-RUN apt update -y && apt install -y git && \
-    pip install -U pip && \
-    rm -rf /var/lib/apt/lists/*
-
-ARG CATEGORY=tts
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 as build
+ARG DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
+ARG TORCH_CUDA_ARCH_LIST="7.5 8.0 8.6+PTX"
+ARG CACHEBUST=1
 ARG DEVICE=cuda
 
-# Create mount point for models
-ENV MODEL_PATH="/app/models"
-RUN echo '{"app_dir":"/app"}' > /root/.gairc    
-WORKDIR /app/models
-
-WORKDIR /app/wheels
-COPY --from=base /workspace/DeepSpeed/dist/*.whl /app/wheels/
-RUN pip install /app/wheels/deepspeed-0.14.0+ce78a632-cp310-cp310-linux_x86_64.whl; 
 WORKDIR /app
 
-# Copy Source Code
-COPY ./requirements_*.txt .
-COPY ./setup.py ./gai.json ./
-COPY ./gai ./gai
-RUN ln -s /app/gai /src
+# Step 1: Install build utils
+RUN apt update && apt upgrade -y && apt install -y --no-install-recommends \
+        build-essential wget git python3-dev \
+        python3.10 python3-pip python3-wheel && \
+    ln -s /usr/bin/python3.10 /usr/bin/python && \
+    pip install --upgrade pip setuptools wheel && \
+    apt clean && \
+    apt autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Gai
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -r requirements_${CATEGORY}.txt
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -e .
-RUN pip install debugpy
+# Step 2: Install torch
+RUN pip install torch==2.2.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cu121
 
-# # Start Server
-WORKDIR /app/gai/api
-#CMD ["bash","-c","python ${CATEGORY}_api.py"]
+# Step 3: Build wheels
+RUN git clone https://github.com/microsoft/DeepSpeed.git && \
+    pip install numpy==1.24.1 gcc==11.4 && \
+    pip install -r DeepSpeed/requirements/requirements.txt
+RUN cd DeepSpeed && DS_BUILD_OPS=1 python setup.py build_ext -j8 bdist_wheel
 
-CMD ["bash","-c","while true; do sleep 30; done;"]
+# # Build Final ----------------------------------------------------------------------------------------
+
+# FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime AS base
+# ARG CATEGORY=tts
+# ARG DEVICE=cuda
+
+# # Step 1: Install dependencies
+# RUN --mount=type=cache,target=/var/cache/apt \
+#     --mount=type=cache,target=/var/lib/apt/lists \
+#     apt update && apt upgrade -y && apt install -y --no-install-recommends \
+#         vim-tiny wget git \
+#         python3.10 python3-pip python3-wheel && \
+#     ln -s /usr/bin/python3.10 /usr/bin/python && \
+#     pip install --upgrade pip setuptools && \
+#     apt clean && \
+#     apt autoremove -y && \
+#     rm -rf /var/lib/apt/lists/*
+
+# Step 3: Install prebuilt wheels
+
+## Install DeepSpeed
+# WORKDIR /app/wheels
+# COPY --from=build /app/DeepSpeed/dist/* /app/wheels/
+# RUN pip install /app/wheels/*.whl
+
+# # Step 4: Copy Source Code
+# WORKDIR /app
+# COPY ./requirements_*.txt .
+# COPY ./setup.py ./gai.json ./
+# COPY ./gai ./gai
+# RUN ln -s /app/gai /src
+
+# # Step 5: Install TTS
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     pip install -r requirements_${CATEGORY}.txt
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     pip install -e .
+# RUN pip install debugpy
+
+# # Step 6: Create mount point for models
+# ENV MODEL_PATH="/app/models"
+# RUN echo '{"app_dir":"/app"}' > /root/.gairc    
+# WORKDIR /app/models
+
+# # Step 7: Start Server
+# WORKDIR /app/gai/api
+# ENV CATEGORY=${CATEGORY}
+# CMD ["bash","-c","python ${CATEGORY}_api.py"]
+# #CMD [ "bash","-c","while true; do sleep 30; done;"]
+

@@ -1,0 +1,84 @@
+# syntax=docker/dockerfile:1.2
+
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 as build
+ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
+ENV TORCH_CUDA_ARCH_LIST="7.5 8.0 8.6+PTX"
+ARG CACHEBUST=1
+
+WORKDIR /app
+
+# Step 1: Install build utils
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt/lists \
+    apt update && apt upgrade -y && apt install -y --no-install-recommends \
+        build-essential wget git \
+        python3.10 python3-pip python3-wheel && \
+    ln -s /usr/bin/python3.10 /usr/bin/python && \
+    pip install --upgrade pip setuptools && \
+    apt clean && \
+    apt autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# Step 2: Install torch
+RUN pip install torch==2.2.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cu121
+
+# Step 3: Build wheels
+RUN git clone https://github.com/microsoft/DeepSpeed.git
+RUN cd DeepSpeed
+RUN pip install numpy==1.24.1
+RUN cd DeepSpeed/requirements && pip install -r requirements.txt
+RUN cd DeepSpeed && DS_BUILD_OPS=1 python setup.py build_ext -j8 bdist_wheel
+
+# Build Final ----------------------------------------------------------------------------------------
+
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime AS base
+ARG CATEGORY=tts
+ARG DEVICE=cuda
+
+# Step 1: Install dependencies
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt/lists \
+    apt update && apt upgrade -y && apt install -y --no-install-recommends \
+        vim-tiny wget git \
+        python3.10 python3-pip python3-wheel && \
+    ln -s /usr/bin/python3.10 /usr/bin/python && \
+    pip install --upgrade pip setuptools && \
+    apt clean && \
+    apt autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# Step 2: Install torch
+# RUN pip install torch==2.2.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cu121
+
+# Step 3: Install prebuilt wheels
+
+## Install DeepSpeed
+WORKDIR /app/wheels
+COPY --from=build /app/DeepSpeed/dist/* /app/wheels/
+RUN pip install /app/wheels/*.whl
+
+# Step 4: Copy Source Code
+WORKDIR /app
+COPY ./requirements_*.txt .
+COPY ./setup.py ./gai.json ./
+COPY ./gai ./gai
+RUN ln -s /app/gai /src
+
+# Step 5: Install TTS
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements_${CATEGORY}.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -e .
+RUN pip install debugpy
+
+# Step 6: Create mount point for models
+ENV MODEL_PATH="/app/models"
+RUN echo '{"app_dir":"/app"}' > /root/.gairc    
+WORKDIR /app/models
+
+# Step 7: Start Server
+WORKDIR /app/gai/api
+ENV CATEGORY=${CATEGORY}
+CMD ["bash","-c","python ${CATEGORY}_api.py"]
+#CMD [ "bash","-c","while true; do sleep 30; done;"]
+
