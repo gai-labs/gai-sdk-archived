@@ -159,6 +159,8 @@ class RAGClientAsync(RAGClientBase):
         # Send file
         try:
             mode = 'rb'
+            if not os.path.exists(file_path):
+                raise Exception(f"File not found: {file_path}")
             with open(file_path, mode) as f:
                 files = {
                     "file": (os.path.basename(file_path), f, "application/pdf"),

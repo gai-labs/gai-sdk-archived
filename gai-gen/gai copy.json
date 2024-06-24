@@ -1,7 +1,8 @@
 {
     "gen": {
         "default": {
-            "ttt": "exllamav2-mistral7b",
+            "ttt": "mistral7b-exllama",
+            "ttt2": "exllamav2-mistral7b",
             "tts": "xtts-2",
             "stt": "whisper-transformers",
             "itt": "llava-transformers",
@@ -75,6 +76,152 @@
             },
             "seed": null
         },
+        "gpt-4": {
+            "type": "ttt",
+            "engine": "OpenAI_TTT",
+            "api_key": "OPENAI_API_KEY",
+            "hyperparameters": {
+                "max_tokens": 100,
+                "temperature": 0.7,
+                "top_p": 1,
+                "presence_penalty": 0.0,
+                "frequency_penalty": 0.0,
+                "stop": null,
+                "logit_bias": {},
+                "n": 1
+            }
+        },
+        "mistral7b-exllama": {
+            "type": "ttt",
+            "model_name": "Mistral7B-ExLlama",
+            "engine": "ExLlama_TTT",
+            "model_path": "models/Mistral-7B-Instruct-v0.1-GPTQ",
+            "model_basename": "model",
+            "max_seq_len": 8192,
+            "stopping_words": [],
+            "hyperparameters": {
+                "temperature": 1.2,
+                "top_p": 0.15,
+                "min_p": 0.0,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "typical": 0.0,
+                "token_repetition_penalty_max": 1.25,
+                "token_repetition_penalty_sustain": 256,
+                "token_repetition_penalty_decay": 128,
+                "beams": 1,
+                "beam_length": 1
+            }
+        },
+        "llama3-exllama2": {
+            "type": "ttt",
+            "model_name": "llama3-exllama2",
+            "engine": "ExLlamaV2_TTT",
+            "model_path": "models/Meta-Llama-3-8B-Instruct-EXL2",
+            "model_basename": "model",
+            "max_seq_len": 8192,
+            "prompt_format": "llama3",
+            "stopping_words": [],
+            "hyperparameters": {
+                "temperature": 1.2,
+                "top_p": 0.15,
+                "min_p": 0.0,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "typical": 0.0,
+                "token_repetition_penalty_max": 1.25,
+                "token_repetition_penalty_sustain": 256,
+                "token_repetition_penalty_decay": 128,
+                "beams": 1,
+                "beam_length": 1
+            }
+        },
+        "mistral7b-exllama2": {
+            "type": "ttt",
+            "model_name": "mistral7b-exllama2",
+            "engine": "ExLlamaV2_TTT",
+            "model_path": "models/Mistral-7B-Instruct-v0.3-exl2",
+            "model_basename": "model",
+            "max_seq_len": 8192,
+            "prompt_format": "mistral",
+            "stopping_words": [],
+            "hyperparameters": {
+                "temperature": 1.2,
+                "top_p": 0.15,
+                "min_p": 0.0,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "typical": 0.0,
+                "token_repetition_penalty_max": 1.25,
+                "token_repetition_penalty_sustain": 256,
+                "token_repetition_penalty_decay": 128,
+                "beams": 1,
+                "beam_length": 1
+            }
+        },
+        "mistral7b_128k-exllama": {
+            "type": "ttt",
+            "model_name": "Mistral7B_128k-ExLlama",
+            "engine": "ExLlama_TTT",
+            "model_path": "models/Yarn-Mistral-7B-128k-GPTQ",
+            "model_basename": "model",
+            "max_seq_len": 65536,
+            "stopping_words": ["\n[^\"]+:"],
+            "hyperparameters": {
+                "temperature": 1.2,
+                "top_p": 0.15,
+                "min_p": 0.0,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "typical": 0.0,
+                "token_repetition_penalty_max": 1.25,
+                "token_repetition_penalty_sustain": 256,
+                "token_repetition_penalty_decay": 128,
+                "beams": 1,
+                "beam_length": 1
+            }
+        },
+        "claude2-100k": {
+            "type": "ttt",
+            "model_name": "Claude2",
+            "engine": "Claude2_TTT",
+            "api_key": "CLAUDE_API_KEY",
+            "prompt_template": "\n\nHuman: {user_message}\n\nAssistant:",
+            "hyperparameters": {
+                "temperature": 0.9,
+                "max_tokens_to_sample": 10000
+            }
+        },
+        "mistral7b-llamacpp": {
+            "type": "ttt",
+            "model_name": "Mistral7B-LlamaCpp",
+            "engine": "LlamaCpp_TTT",
+            "model_path": "models/Mistral-7B-Instruct-v0.3-GGUF",
+            "model_basename": "Mistral-7B-Instruct-v0.3-Q4_K_M.gguf",
+            "max_seq_len": 8192,
+            "stopping_words": [],
+            "hyperparameters": {
+                "max_tokens": 100,
+                "temperature": 1.31,
+                "top_k": 49,
+                "top_p": 0.14
+            }
+        },
+        "llama3-llamacpp": {
+            "type": "ttt",
+            "model_name": "Llama3-LlamaCpp",
+            "engine": "LlamaCpp_TTT",
+            "model_path": "models/LLaMA3-iterative-DPO-final-GGUF",
+            "model_basename": "LLaMA3-iterative-DPO-final-Q4_K_M.gguf",
+            "max_seq_len": 8192,
+            "stopping_words": [],
+            "hyperparameters": {
+                "max_tokens": 100,
+                "temperature": 1.31,
+                "top_k": 49,
+                "top_p": 0.14
+            }
+        },
         "llama2-transformers": {
             "type": "ttt",
             "model_name": "LlaMa2-7B",
@@ -118,6 +265,12 @@
             "engine": "Transformers_TTC",
             "model_path": "models/deepseek-coder-6.7b-instruct"
         },
+        "openai-whisper": {
+            "type": "stt",
+            "engine": "OpenAIWhisper_STT",
+            "model_name": "OpenAI Whisper v1",
+            "api_key": "OPENAI_API_KEY"
+        },
         "whisper-transformers": {
             "type": "stt",
             "engine": "LocalWhisper_STT",
@@ -132,6 +285,11 @@
                 "max_new_tokens": 128
             }
         },
+        "openai-tts-1": {
+            "type": "tts",
+            "engine": "OpenAI_TTS",
+            "api_key": "OPENAI_API_KEY"
+        },
         "xtts-2": {
             "type": "tts",
             "engine": "XTTS_TTS",
@@ -140,6 +298,16 @@
             "model_basename": "",
             "max_seq_len": 128,
             "stopping_words": []
+        },
+        "openai-vision": {
+            "type": "itt",
+            "engine": "Vision_ITT",
+            "model_name": "OpenAI Vision",
+            "api_key": "OPENAI_API_KEY",
+            "hyperparameters": {
+                "temperature": 0.2,
+                "max_tokens": 512
+            }
         },
         "llava-transformers": {
             "type": "itt",
@@ -184,6 +352,23 @@
             },
             "model_path": "models/instructor-large",
             "device": "cuda",
+            "chunks": {
+                "size": 1000,
+                "overlap": 100,
+                "path": "chunks"
+            }
+        },
+        "openai-ada-rag": {
+            "type": "rag",
+            "chromadb": {
+                "path": "rag/chromadb",
+                "n_results": 3
+            },
+            "sqlite": {
+                "path": "rag/gai-rag.db"
+            },
+            "engine": "OpenAIADA_EMBEDDING",
+            "api_key": "OPENAI_API_KEY",
             "chunks": {
                 "size": 1000,
                 "overlap": 100,

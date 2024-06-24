@@ -10,9 +10,6 @@ class ITT(GenBase):
         if self.config['engine'] == 'Llava_ITT':
             from gai.gen.itt.Llava_ITT import Llava_ITT
             self.itt = Llava_ITT(self.config)
-        elif self.config['engine'] == 'Vision_ITT':
-            from gai.gen.itt.Vision_ITT import Vision_ITT
-            self.itt = Vision_ITT(self.config)
         elif self.config['engine'] == 'LlamaCpp_ITT':
             from gai.gen.ttt.LlamaCpp_TTT import LlamaCpp_TTT
             self.itt = LlamaCpp_TTT(self.config)

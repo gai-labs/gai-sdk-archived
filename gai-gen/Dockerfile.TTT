@@ -1,40 +1,42 @@
 # syntax=docker/dockerfile:1.2
 
-FROM torch2.0.1-cuda11.7-ubuntu22.04 as build
-CMD ["base","-c","sleep 100000000"]
+FROM torch2.2.0-cuda12.1-ubuntu22.04 as build
 
 # Build Final ----------------------------------------------------------------------------------------
 
-FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime AS final
-ARG CATEGORY=itt
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime AS base
+ARG CATEGORY=ttt
 ARG DEVICE=cuda
 ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
 
 # Step 1: Install common dependencies
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip setuptools wheel
 
 # Step 2: Install prebuilt wheels
 
-## LLaVA
+## llama-cpp-python
 WORKDIR /app/wheels
-COPY --from=build /app/LLaVA/dist/llava-1.1.3-py3-none-any.whl /app/wheels/
+COPY --from=build /app/wheels/llama_cpp_python-*.whl /app/wheels/
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install /app/wheels/llava-1.1.3-py3-none-any.whl
+    pip install /app/wheels/llama_cpp_python-*.whl
+
+## exllamav2
+WORKDIR /app/wheels
+COPY --from=build /app/wheels/exllamav2-*.whl /app/wheels/
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install /app/wheels/exllamav2-*.whl
 
 # Step 3: Copy Source Code
 WORKDIR /app
 COPY ./requirements_*.txt .
 COPY ./setup.py ./gai.json ./
 COPY ./gai ./gai
-RUN ln -s /app/gai /src
 
 # Step 4: Install GAI
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements_${CATEGORY}.txt && \
-    pip install -e . && \
-    pip install debugpy && \
-    pip cache purge
+    pip install -e .    
+RUN ln -s /app/gai /src && \
+    pip install debugpy
 
 # Step 5: Create mount point for models
 ENV MODEL_PATH="/app/models"
@@ -45,4 +47,6 @@ WORKDIR /app/models
 WORKDIR /app/gai/api
 ENV CATEGORY=${CATEGORY}
 CMD ["bash","-c","python ${CATEGORY}_api.py"]
+
+
 

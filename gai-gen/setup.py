@@ -69,7 +69,6 @@ setup(
     ],
     extras_require={
         "TTT": parse_requirements("requirements_ttt.txt"),
-        "TTT2": parse_requirements("requirements_ttt2.txt"),
         "ITT": parse_requirements("requirements_itt.txt"),
         "ITT2": parse_requirements("requirements_itt2.txt"),
         'STT': parse_requirements("requirements_stt.txt"),

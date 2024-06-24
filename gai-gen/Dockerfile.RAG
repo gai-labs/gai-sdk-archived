@@ -1,45 +1,39 @@
 # syntax=docker/dockerfile:1.2
-
-FROM torch2.2.0-cuda12.1-ubuntu22.04 as build
-
-# Build Final ----------------------------------------------------------------------------------------
-
 FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime AS base
-ARG CATEGORY=tts
+ARG CATEGORY=rag
+ENV CATEGORY=${CATEGORY}
 ARG DEVICE=cuda
-ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
+ENV DEVICE=${DEVICE}
+ENV MODEL_PATH="/app/models"
+ENV LD_LIBRARY_PATH="/usr/local/cuda-12.1/lib64:/usr/lib/wsl/lib:$LD_LIBRARY_PATH"
 
 # Step 1: Install common dependencies
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt/lists \
+    apt update -y && apt install -y \
+        ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
 # Step 2: Install prebuilt wheels
-
-## deepspeed
-WORKDIR /app/wheels
-COPY --from=build /app/DeepSpeed/dist/* /app/wheels/
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install /app/wheels/*.whl
 
 # Step 3: Copy Source Code
 WORKDIR /app
 COPY ./requirements_*.txt .
 COPY ./setup.py ./gai.json ./
 COPY ./gai ./gai
-RUN ln -s /app/gai /src
 
 # Step 4: Install GAI
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements_${CATEGORY}.txt && \
-    pip install -e . && \
+    pip install -e .    
+RUN ln -s /app/gai /src && \
     pip install debugpy
 
+
 # Step 5: Create mount point for models
-ENV MODEL_PATH="/app/models"
 RUN echo '{"app_dir":"/app"}' > /root/.gairc    
 WORKDIR /app/models
 
 # Step 6: Start Server
 WORKDIR /app/gai/api
-ENV CATEGORY=${CATEGORY}
 CMD ["bash","-c","python ${CATEGORY}_api.py"]
-
-
