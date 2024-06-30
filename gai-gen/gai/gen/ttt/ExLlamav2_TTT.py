@@ -289,7 +289,8 @@ class ExLlamav2_TTT:
         response=""
         from jsonschema import validate
         json_data=None
-        while not response:
+        retries=3
+        while not response and retries>=0:
             response=generator.generate(
                 prompt=prompt, 
                 token_healing=True,
@@ -310,7 +311,12 @@ class ExLlamav2_TTT:
                     json_data = json.loads(response)
                     validate(json_data, schema)
                 except Exception as e:
+                    logger.warning(f"ExLlamav2_TTT._generating: Error loading JSON for schema. {e}")
                     response=""
+                    retries-=1
+
+        if retries<0:
+            raise Exception(f"Failed to generate JSON for schema after maximum number of retries.")
 
         finish_reason=""        
         outputs = self.tokenizer.encode(response)
