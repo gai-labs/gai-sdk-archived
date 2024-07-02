@@ -43,16 +43,6 @@ async def startup_event():
         raise e
 app.add_event_handler("startup", startup_event)
 
-# # Pre-load default model
-# def preload_model():
-#     try:
-#         # RAG does not use "default" model
-#         gen.load("llava-transformers")
-#     except Exception as e:
-#         logger.error(f"Failed to preload default model: {e}")
-#         raise e
-# preload_model()
-
 ### ----------------- ITT ----------------- ###
 class ImageToTextRequest(BaseModel):
     model: Optional[str] = "llava-transformers"
@@ -86,5 +76,9 @@ async def _image_to_text(request: ImageToTextRequest = Body(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    #uvicorn.run(app, host="0.0.0.0", port=12031, workers=4)
-    uvicorn.run(app, host="0.0.0.0", port=12034)
+    uvicorn.run(app, 
+        host="0.0.0.0", 
+        port=12034,
+        timeout_keep_alive=180,
+        timeout_notify=150,
+        workers=1)

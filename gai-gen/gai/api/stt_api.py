@@ -40,16 +40,6 @@ async def startup_event():
         raise e
 app.add_event_handler("startup", startup_event)
 
-# # Pre-load default model
-# def preload_model():
-#     try:
-#         # RAG does not use "default" model
-#         gen.load("whisper-transformers")
-#     except Exception as e:
-#         logger.error(f"Failed to preload default model: {e}")
-#         raise e
-# preload_model()
-
 ### ----------------- STT ----------------- ###
 from io import BytesIO
 from pydub import AudioSegment
@@ -88,5 +78,9 @@ async def _speech_to_text(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    #uvicorn.run(app, host="0.0.0.0", port=12031, workers=4)
-    uvicorn.run(app, host="0.0.0.0", port=12033)
+    uvicorn.run(app, 
+        host="0.0.0.0", 
+        port=12033,
+        timeout_keep_alive=180,
+        timeout_notify=150,
+        workers=1)

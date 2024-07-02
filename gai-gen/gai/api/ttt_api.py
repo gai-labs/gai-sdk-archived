@@ -110,7 +110,8 @@ if __name__ == "__main__":
         host="0.0.0.0", 
         port=12031, 
         timeout_keep_alive=180,
-        timeout_notify=150
+        timeout_notify=150,
+        workers=1
     )
     server = uvicorn.Server(config=config)
     server.run()
