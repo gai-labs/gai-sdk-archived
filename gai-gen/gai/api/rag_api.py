@@ -537,10 +537,14 @@ async def get_document_chunk_async(collection_name,chunk_id):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, 
+
+    config = uvicorn.Config(
+        app=app, 
         host="0.0.0.0", 
-        port=12036,
+        port=12036, 
         timeout_keep_alive=180,
         timeout_notify=150,
         workers=1
-        )
+    )
+    server = uvicorn.Server(config=config)
+    server.run()

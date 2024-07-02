@@ -78,9 +78,14 @@ async def _text_to_speech(request: TextToSpeechRequest = Body(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, 
+
+    config = uvicorn.Config(
+        app=app, 
         host="0.0.0.0", 
-        port=12032,
+        port=12032, 
         timeout_keep_alive=180,
         timeout_notify=150,
-        workers=1)
+        workers=1
+    )    
+    server = uvicorn.Server(config=config)
+    server.run()

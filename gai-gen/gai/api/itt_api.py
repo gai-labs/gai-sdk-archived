@@ -76,9 +76,14 @@ async def _image_to_text(request: ImageToTextRequest = Body(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, 
+
+    config = uvicorn.Config(
+        app=app, 
         host="0.0.0.0", 
-        port=12034,
+        port=12034, 
         timeout_keep_alive=180,
         timeout_notify=150,
-        workers=1)
+        workers=1
+    )
+    server = uvicorn.Server(config=config)
+    server.run()
