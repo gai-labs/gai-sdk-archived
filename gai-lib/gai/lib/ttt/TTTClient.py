@@ -66,7 +66,9 @@ class TTTClient(ClientBase):
 
         if not messages:
             raise Exception("Messages not provided")
-
+        
+        if messages[-1]["role"] != "assistant":
+            messages.append({"role": "assistant", "content": ""})
 
         data = { 
             "messages": messages,
