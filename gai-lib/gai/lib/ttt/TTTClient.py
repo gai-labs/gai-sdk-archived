@@ -82,10 +82,6 @@ class TTTClient(ClientBase):
             "tool_choice": tool_choice
         }
 
-        def streamer(response):
-            for chunk in response.iter_lines():
-                yield ChunkWrapper(chunk)
-
         try:
             url = self._get_gai_url()
             response = http_post(url, data)
@@ -118,6 +114,13 @@ class TTTClient(ClientBase):
                     "content": response.json()["choices"][0]["message"]["content"]
                 }
             return response
+        
+        def streamer(response):
+            for chunk in response.iter_lines():
+                output=json.loads(chunk.decode("utf-8"))
+                if chunk:
+                    yield ChunkWrapper(chunk)
+
         return streamer(response)
 
 
@@ -136,10 +139,6 @@ class TTTClient(ClientBase):
 
         if not messages:
             raise Exception("Messages not provided")
-
-        def streamer(response):
-            for chunk in response:
-                yield OpenAIChunkWrapper(chunk)
 
         model = "gpt-4o"
 
@@ -181,12 +180,11 @@ class TTTClient(ClientBase):
                     "content": response.choices[0].message.content
                 }
             return response
+        
+        def streamer(response):
+            for chunk in response:
+                yield OpenAIChunkWrapper(chunk)
 
-
-        if not stream:
-            response.decode = lambda: response.choices[
-                0].message.content if response.choices[0].message.content else ""
-            return response
         return streamer(response)
 
     # Call Claude API
