@@ -1,4 +1,4 @@
-from gai.common.file_utils import this_dir
+from gai_common.file_utils import this_dir
 import os
 from gai.lib.STTClient import STTClient
 stt = STTClient()

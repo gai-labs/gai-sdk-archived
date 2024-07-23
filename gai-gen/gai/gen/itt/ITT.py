@@ -1,4 +1,4 @@
-from gai.common import logging, generators_utils
+from gai_common import logging, generators_utils
 logger = logging.getLogger(__name__)
 from gai.gen.GenBase import GenBase
 

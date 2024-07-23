@@ -1,6 +1,6 @@
 from gai.gen.stt.OpenAIWhisper_STT import OpenAIWhisper_STT
 from gai.gen.stt.LocalWhisper_STT import LocalWhisper_STT
-from gai.common import logging, generators_utils
+from gai_common import logging, generators_utils
 logger = logging.getLogger(__name__)
 from gai.gen.GenBase import GenBase
 

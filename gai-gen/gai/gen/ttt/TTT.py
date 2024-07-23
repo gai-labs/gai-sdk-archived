@@ -1,6 +1,6 @@
 from typing import List
-from gai.common import logging, generators_utils
-from gai.common.generators_utils import word_streamer
+from gai_common import logging, generators_utils
+from gai_common.generators_utils import word_streamer
 logger = logging.getLogger(__name__)
 from gai.gen.GenBase import GenBase
 

@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer
 from auto_gptq import AutoGPTQForCausalLM
 import torch, gc, re
-from gai.common import logging, generators_utils
+from gai_common import logging, generators_utils
 logger = logging.getLogger(__name__)
 
 class AutoGPTQ_TTT:

@@ -1,8 +1,8 @@
 # prettier-ignore
 import asyncio
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
-from gai.common.StatusListener import StatusListener
+from gai_common.StatusListener import StatusListener
 
 async def callback(message):
     logger.info(f"Callback: message={message}")

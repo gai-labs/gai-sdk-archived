@@ -13,7 +13,7 @@ from gai.gen.rag.dalc.Base import Base
 from datetime import datetime
 from gai.gen.rag.dalc.RAGDBRepository import RAGDBRepository as Repository
 from gai.gen.rag.RAG import RAG
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 
 class UT0010_RAGDBRepository_test(unittest.TestCase):

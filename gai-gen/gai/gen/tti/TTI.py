@@ -1,6 +1,6 @@
 from typing import List
-from gai.common.utils import get_app_path
-from gai.common import logging, generators_utils
+from gai_common.utils import get_app_path
+from gai_common import logging, generators_utils
 logger = logging.getLogger(__name__)
 from gai.gen.GenBase import GenBase
 from gai.gen.tti.OpenAIDALLE3_TTI import OpenAIDALLE3_TTI

@@ -3,8 +3,8 @@ from gai.gen.rag.models.IndexedDocumentChunkPydantic import IndexedDocumentChunk
 from gai.gen.rag.models.IndexedDocumentPydantic import IndexedDocumentPydantic
 from chromadb.config import Settings
 import chromadb
-from gai.common.utils import get_gen_config, get_app_path
-from gai.common import logging
+from gai_common.utils import get_gen_config, get_app_path
+from gai_common import logging
 logger = logging.getLogger(__name__)
 import json
 from chromadb.utils.embedding_functions import InstructorEmbeddingFunction

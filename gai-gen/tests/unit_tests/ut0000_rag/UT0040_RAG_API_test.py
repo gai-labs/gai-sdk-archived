@@ -1,5 +1,5 @@
 from gai.gen.rag.RAG import RAG
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import unittest
 import os

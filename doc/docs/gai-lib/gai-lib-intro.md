@@ -308,7 +308,7 @@ All of the above examples will return the following:
 Set up the following text as input
 
 ```python
-from gai.common.sound_utils import play_audio
+from gai_common.sound_utils import play_audio
 
 data = {
     "input": "The definition of insanity is doing the same thing over and over and expecting different results.",
@@ -394,7 +394,7 @@ with open("./tests/lib/stt/today-is-a-wonderful-day.wav", "rb") as f:
 Load Image Sample
 
 ```python
-from gai.common.image_utils import read_to_base64
+from gai_common.image_utils import read_to_base64
 import os
 from IPython.display import Image,display
 image_file = os.path.join("./tests/lib/itt", "buses.jpeg")

@@ -1,5 +1,5 @@
-from gai.common import generators_utils, logging
-from gai.common.utils import get_app_path
+from gai_common import generators_utils, logging
+from gai_common.utils import get_app_path
 logger = logging.getLogger(__name__)
 import gc
 import torch

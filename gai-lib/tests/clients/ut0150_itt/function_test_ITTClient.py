@@ -1,5 +1,5 @@
-from gai.common.file_utils import this_dir
-from gai.common.image_utils import read_to_base64
+from gai_common.file_utils import this_dir
+from gai_common.image_utils import read_to_base64
 import os
 from gai.lib.ITTClient import ITTClient
 itt = ITTClient()

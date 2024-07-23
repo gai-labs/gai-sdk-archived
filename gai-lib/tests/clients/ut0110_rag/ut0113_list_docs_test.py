@@ -1,10 +1,10 @@
 import asyncio,json
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 logger.setLevel("DEBUG")
 
 config_type = "local"
-from gai.common.utils import this_dir
+from gai_common.utils import this_dir
 from gai.lib.RAGClientAsync import RAGClientAsync
 rag = RAGClientAsync(config_path=f"{this_dir(__file__)}/../gai.{config_type}.yml")
 

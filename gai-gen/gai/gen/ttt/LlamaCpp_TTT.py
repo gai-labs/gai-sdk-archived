@@ -1,6 +1,6 @@
-from gai.common import generators_utils, logging
-from gai.common.generators_utils import apply_tools_message, get_tools_schema, format_list_to_prompt
-from gai.common.utils import get_app_path
+from gai_common import generators_utils, logging
+from gai_common.generators_utils import apply_tools_message, get_tools_schema, format_list_to_prompt
+from gai_common.utils import get_app_path
 import os,torch,gc,json
 #from openai.types.chat.chat_completion import ChatCompletion, ChatCompletionMessage, Choice , CompletionUsage
 #from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, Choice as ChunkChoice, ChoiceDelta

@@ -6,10 +6,10 @@ from chromadb.utils.embedding_functions import InstructorEmbeddingFunction
 
 from gai.gen.rag.dalc.RAGVSRepository import RAGVSRepository
 from gai.gen.rag.dalc.RAGDBRepository import RAGDBRepository
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 
-from gai.common.utils import get_gen_config, get_app_path
+from gai_common.utils import get_gen_config, get_app_path
 
 class UT0020_RAGVSRepository_test(unittest.TestCase):
 

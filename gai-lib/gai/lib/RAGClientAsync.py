@@ -4,13 +4,13 @@ import json
 import uuid
 
 from pydantic import BaseModel
-from gai.common.http_utils import http_post_async, http_get_async,http_delete_async, http_put_async
-from gai.common.logging import getLogger
+from gai_common.http_utils import http_post_async, http_get_async,http_delete_async, http_put_async
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
-from gai.common.errors import ApiException, DocumentNotFoundException
+from gai_common.errors import ApiException, DocumentNotFoundException
 from gai.lib.ClientBase import ClientBase
 import websockets
-from gai.common.StatusListener import StatusListener
+from gai_common.StatusListener import StatusListener
 
 class RAGClientBase(ClientBase):
     

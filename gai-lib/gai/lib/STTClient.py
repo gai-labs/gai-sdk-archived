@@ -1,7 +1,7 @@
-from gai.common.utils import get_lib_config
-from gai.common.http_utils import http_post
+from gai_common.utils import get_lib_config
+from gai_common.http_utils import http_post
 from gai.lib.ClientBase import ClientBase
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 from pydantic import BaseModel
 logger = getLogger(__name__)
 

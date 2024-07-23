@@ -1,5 +1,5 @@
 from gai.lib.GGG import GGG
-from gai.common.sound_utils import play_audio
+from gai_common.sound_utils import play_audio
 ggg = GGG()
 
 response = ggg(

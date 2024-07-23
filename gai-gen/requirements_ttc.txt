@@ -20,3 +20,4 @@ fastapi==0.109.2
 openai==1.32.0
 lm-format-enforcer==0.10.2
 jsonschema==4.22.0
+gai-common==0.1.4

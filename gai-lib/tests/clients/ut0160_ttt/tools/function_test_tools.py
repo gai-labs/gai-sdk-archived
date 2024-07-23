@@ -1,5 +1,5 @@
 import json
-from gai.common.generators_utils import chat_string_to_list
+from gai_common.generators_utils import chat_string_to_list
 from gai.lib.ttt.TTTClient import TTTClient
 ttt = TTTClient()
 

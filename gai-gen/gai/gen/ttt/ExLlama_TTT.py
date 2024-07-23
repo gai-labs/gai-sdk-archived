@@ -18,10 +18,10 @@ import torch
 import gc
 import re
 import os
-from gai.common import generators_utils
-from gai.common.utils import this_dir, get_app_path
-from gai.common.generators_utils import chat_string_to_list, has_ai_placeholder
-from gai.common.logging import getLogger
+from gai_common import generators_utils
+from gai_common.utils import this_dir, get_app_path
+from gai_common.generators_utils import chat_string_to_list, has_ai_placeholder
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import codecs
 

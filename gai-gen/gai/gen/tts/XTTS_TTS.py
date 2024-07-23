@@ -1,8 +1,8 @@
 import os, gc
 #from TTS.api import TTS
-from gai.common import generators_utils, logging
+from gai_common import generators_utils, logging
 logger = logging.getLogger(__name__)
-from gai.common.utils import get_app_path
+from gai_common.utils import get_app_path
 import torch
 
 class XTTS_TTS:

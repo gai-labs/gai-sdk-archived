@@ -5,7 +5,7 @@ import uuid
 from fastapi import FastAPI, Response, WebSocket, Header, Body, UploadFile, File
 from typing import Optional
 from fastapi.responses import JSONResponse
-from gai.common.errors import ApiException, ContextLengthExceededException, GeneratorMismatchException, InternalException, MessageNotFoundException, UserNotFoundException
+from gai_common.errors import ApiException, ContextLengthExceededException, GeneratorMismatchException, InternalException, MessageNotFoundException, UserNotFoundException
 from pydantic import BaseModel
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 

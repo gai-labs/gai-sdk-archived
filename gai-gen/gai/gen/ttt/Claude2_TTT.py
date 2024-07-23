@@ -1,6 +1,6 @@
 import os,json
 from dotenv import load_dotenv
-from gai.common import logging, generators_utils
+from gai_common import logging, generators_utils
 logger = logging.getLogger(__name__)
 from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 from typing import List

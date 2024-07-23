@@ -1,8 +1,8 @@
 import os,torch,gc,json,re
-from gai.common.utils import get_app_path
-from gai.common.generators_utils import chat_string_to_list, apply_tools_message,format_list_to_prompt, apply_schema_prompt, get_tools_schema
-from gai.common.logging import getLogger, configure_loglevel
-configure_loglevel()
+from gai_common.utils import get_app_path
+from gai_common.generators_utils import chat_string_to_list, apply_tools_message,format_list_to_prompt, apply_schema_prompt, get_tools_schema
+from gai_common.logging import getLogger
+
 logger = getLogger(__name__)
 from exllamav2 import(
     ExLlamaV2,
@@ -176,7 +176,7 @@ class ExLlamav2_TTT:
 
     # Although support for streaming tools is implemented but it is not as efficient as the non-streaming tools.
     # Recommend to use non-streaming tools for now.
-    def _streaming(self, prompt, settings, max_new_tokens, stop_conditions,schema=None, tools=None, seed=None):
+    def _streaming(self, prompt, settings, max_new_tokens, stop_conditions,schema=None, tools=None, seed=None, tool_choice="none"):
         generator=ExLlamaV2StreamingGenerator(self.model, self.cache, self.tokenizer)
         generator.warmup()
         ids = self.tokenizer.encode(prompt)
@@ -199,6 +199,9 @@ class ExLlamav2_TTT:
         tool_name_output = None
         tool_arguments_output = None        
         is_tool_text = False
+        has_head = False
+
+        yield ChunkOutputBuilder.BuildContentHead(generator=self.gai_config["model_name"])
 
         while True:
             res=generator.stream_ex()
@@ -206,7 +209,7 @@ class ExLlamav2_TTT:
             eos = res["eos"]
             tokens = res["chunk_token_ids"]
 
-            if tools:
+            if tools and tool_choice != "none":
 
                 # Even though its tools, we don't know if the model will choose text or tools yet until we check the function "name"
 
@@ -261,13 +264,13 @@ class ExLlamav2_TTT:
                     logger.info(f"ExLlama_TTT2._streaming: stopped by stop token. ")
                     return                    
 
-            if not tools:
-                yield ChunkOutputBuilder.BuildContentHead(generator=self.gai_config["model_name"])
+            if not tools or tool_choice == "none":
                 if len(response_text) == 0: 
                     chunk = chunk.lstrip()
                     response_text += chunk
                     responses_ids[-1] = torch.cat([responses_ids[-1], tokens], dim = -1)
-                yield ChunkOutputBuilder.BuildContentBody(generator=self.gai_config["model_name"],content=chunk)                    
+                if chunk:
+                    yield ChunkOutputBuilder.BuildContentBody(generator=self.gai_config["model_name"],content=chunk)                    
 
                 response_tokens += 1
                 if response_tokens == max_new_tokens:
@@ -275,6 +278,7 @@ class ExLlamav2_TTT:
                         responses_ids[-1] = torch.cat([responses_ids[-1], self.tokenizer.single_token(self.tokenizer.eos_token_id)], dim = -1)
                     break
                 if eos or tokens in generator.stop_tokens:
+                    yield ChunkOutputBuilder.BuildContentBody(generator=self.gai_config["model_name"],content=".")
                     yield ChunkOutputBuilder.BuildContentTail(generator=self.gai_config["model_name"],finish_reason="stop")
                     return
 
@@ -289,7 +293,7 @@ class ExLlamav2_TTT:
         response=""
         from jsonschema import validate
         json_data=None
-        retries=3
+        retries=10
         while not response and retries>=0:
             response=generator.generate(
                 prompt=prompt, 
@@ -316,7 +320,9 @@ class ExLlamav2_TTT:
                     retries-=1
 
         if retries<0:
-            raise Exception(f"Failed to generate JSON for schema after maximum number of retries.")
+            logger.warning(f"Failed to generate JSON for schema after maximum number of retries.")
+            # Return a standard response
+            response = "I'm sorry but I am unable to generate a structured response for this request. If you are fine with an unstructured response, please try again with tool_choice=None."
 
         finish_reason=""        
         outputs = self.tokenizer.encode(response)
@@ -344,13 +350,16 @@ class ExLlamav2_TTT:
                 function_name=json_data["function"]["name"]
                 function_arguments=json.dumps(json_data["function"]["arguments"])
                 logger.debug(f"ExLlama_TTT2._generating: function_name={function_name} function_arguments={function_arguments}")
-                return OutputBuilder.BuildTool(
+                
+                chat_completion = OutputBuilder.BuildTool(
                     generator=self.gai_config["model_name"],
                     function_name=function_name,
                     function_arguments=function_arguments,
                     prompt_tokens=input_len,
                     new_tokens=output_len
                     )
+                logger.debug(f"ExLlama_TTT2._generating: completions={chat_completion}")
+                return chat_completion
             else:
                 # JSON output
                 chat_completion = OutputBuilder.BuildContent(
@@ -361,6 +370,7 @@ class ExLlamav2_TTT:
                     new_tokens=output_len
                 )
                 logger.debug(f"ExLlama_TTT2._generating: content={response.lstrip()}")
+                logger.debug(f"ExLlama_TTT2._generating: completions={chat_completion}")
                 return chat_completion
         else:
             # The result is a text output.
@@ -372,6 +382,7 @@ class ExLlamav2_TTT:
                 new_tokens=output_len
             )
             logger.debug(f"ExLlama_TTT2._generating: content={response.lstrip()}")
+            logger.debug(f"ExLlama_TTT2._generating: completions={chat_completion}")
         return chat_completion
 
     def create(self, 
@@ -408,8 +419,14 @@ class ExLlamav2_TTT:
         # tools
         if tools and tool_choice != "none":
             messages = apply_tools_message(messages=messages,tools=tools,tool_choice=tool_choice)
-            schema=get_tools_schema()
+            # Normal schema is typically used for data validating. But when tool call is used,
+            # the schema becomes a tool call schema and is used for validating function signatures instead of data.
+            # Whenever tool schema is used, the result can no longer be unstructured.
+            # Therefore, the tool schema is set only when tool_choice is required.
+            if tool_choice == "required" or tool_choice == "auto":
+                schema = get_tools_schema()
             settings.temperature=0
+        
 
         # schema
         if schema:
@@ -420,14 +437,16 @@ class ExLlamav2_TTT:
         
         # Format the list to corresponding model's prompt format
         prompt_format = self.gai_config.get("prompt_format")
-        prompt = format_list_to_prompt(messages=messages, format_type=prompt_format)
+        prompt = format_list_to_prompt(messages=messages, format_type=prompt_format,stream=stream)
         logger.info(f"ExLlama_TTT2.create:\n\tprompt=`{prompt}`\n\tschema=`{schema}`\n\ttools=`{tools}`\n\tprompt_format=`{prompt_format}`")
 
-        if stream and not tools and not schema:
+        if stream:
             return (chunk for chunk in self._streaming(
                 prompt=prompt,
                 settings=settings,
                 max_new_tokens=max_new_tokens,
+                schema=schema,
+                tools=tools,
                 stop_conditions=stop_conditions,
             ))
         

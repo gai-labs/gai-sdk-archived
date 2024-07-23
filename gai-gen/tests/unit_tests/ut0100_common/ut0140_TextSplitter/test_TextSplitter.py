@@ -1,6 +1,6 @@
 import unittest
-from gai.common.TextSplitter import TextSplitter
-from gai.common.utils import this_dir
+from gai_common.TextSplitter import TextSplitter
+from gai_common.utils import this_dir
 cwd=this_dir(__file__)
 
 class test_TextSplitter(unittest.TestCase):

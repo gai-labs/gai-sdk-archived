@@ -1,5 +1,5 @@
 from gai.tools.Scraper import Scraper
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 
 class Googler:

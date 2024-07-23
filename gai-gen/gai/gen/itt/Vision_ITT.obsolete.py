@@ -1,6 +1,6 @@
 import os,openai
 from openai import OpenAI
-from gai.common import generators_utils, logging
+from gai_common import generators_utils, logging
 logger = logging.getLogger(__name__)
 
 

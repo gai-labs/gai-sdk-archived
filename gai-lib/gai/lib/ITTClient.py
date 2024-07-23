@@ -1,11 +1,11 @@
 from gai.lib.ttt.ChunkWrapper import ChunkWrapper
-from gai.common.utils import get_lib_config
-from gai.common.http_utils import http_post
-from gai.common.image_utils import base64_to_imageurl
+from gai_common.utils import get_lib_config
+from gai_common.http_utils import http_post
+from gai_common.image_utils import base64_to_imageurl
 from gai.lib.ttt.OpenAIChunkWrapper import OpenAIChunkWrapper
-from gai.common.generators_utils import chat_string_to_list
+from gai_common.generators_utils import chat_string_to_list
 from gai.lib.ClientBase import ClientBase
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 
 class ITTClient(ClientBase):

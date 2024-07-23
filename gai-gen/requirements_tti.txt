@@ -5,3 +5,4 @@ ipykernel==6.27.1
 uvicorn
 fastapi==0.109.2
 PyYAML
+gai-common==0.1.4

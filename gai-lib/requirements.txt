@@ -7,3 +7,4 @@ anthropic
 python-dotenv
 langchain
 colorlog==6.8.2
+gai-common==0.75

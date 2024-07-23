@@ -21,21 +21,21 @@ from typing import List, Optional
 from sqlalchemy import create_engine, MetaData
 
 # gai
-from gai.common.errors import *
+from gai_common.errors import *
 #from gai.gen.rag.models.IndexedDocumentChunkPydantic import IndexedDocumentChunkPydantic
 from gai.gen.rag.models import IndexedDocumentChunkPydantic
 import gai.api.dependencies as dependencies
 from gai.gen.rag import RAG
 from gai.gen import Gaigen
-from gai.common.errors import *
-from gai.common import file_utils,utils
+from gai_common.errors import *
+from gai_common import file_utils,utils
 from gai.gen.rag import RAG
 from gai.gen.rag.dalc.Base import Base
-from gai.common.WSManager import ws_manager
+from gai_common.WSManager import ws_manager
 
 # Configure Dependencies
 dependencies.configure_logging()
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 logger.info(f"Starting Gai Generators Service v{dependencies.APP_VERSION}")
 logger.info(f"Version of gai_gen installed = {dependencies.LIB_VERSION}")
@@ -62,7 +62,7 @@ def get_in_memory():
     return memory
 
 # Initialise Generator
-from gai.common.utils import get_gen_config
+from gai_common.utils import get_gen_config
 gai_config = get_gen_config()
 DEFAULT_GENERATOR=os.getenv("DEFAULT_GENERATOR",None)
 default_generator_name = gai_config["gen"]["default"]["rag"]

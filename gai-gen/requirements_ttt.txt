@@ -14,4 +14,5 @@ torchaudio==2.2.0
 tokenizers
 transformers
 torchvision==0.17.0
+gai-common==0.76
 uvicorn

@@ -1,6 +1,6 @@
 import os,torch,gc,re,base64,io
-from gai.common import generators_utils, logging
-from gai.common.utils import get_app_path
+from gai_common import generators_utils, logging
+from gai_common.utils import get_app_path
 from transformers import AutoProcessor, LlavaForConditionalGeneration, BitsAndBytesConfig, TextIteratorStreamer
 from threading import Thread
 from PIL import Image

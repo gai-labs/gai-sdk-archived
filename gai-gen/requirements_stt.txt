@@ -11,3 +11,4 @@ PyDub==0.25.1
 python_multipart==0.0.6
 fastapi==0.109.2
 langchain-community==0.0.18
+gai-common==0.1.4

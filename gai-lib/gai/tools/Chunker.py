@@ -1,5 +1,5 @@
 from gai.common import file_utils
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import os
 from nltk.tokenize import sent_tokenize

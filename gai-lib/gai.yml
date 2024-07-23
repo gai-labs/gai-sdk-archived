@@ -8,7 +8,7 @@ logging:
     stream: "stdout"
     loggers:
         gai.lib.ttt: "DEBUG"
-        gai.common.http_utils: "DEBUG"
+        gai_common.http_utils: "DEBUG"
 generators:
     ttt-gai:
         type: ttt

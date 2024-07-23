@@ -11,7 +11,7 @@ load_dotenv()
 # Configure Dependencies
 import dependencies
 dependencies.configure_logging()
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 logger.info(f"Starting Gai Generators Service v{dependencies.APP_VERSION}")
 logger.info(f"Version of gai_gen installed = {dependencies.LIB_VERSION}")
@@ -29,7 +29,7 @@ from gai.gen import Gaigen
 gen = Gaigen.GetInstance()
 
 # STARTUP
-from gai.common.utils import get_gen_config
+from gai_common.utils import get_gen_config
 DEFAULT_GENERATOR=os.getenv("DEFAULT_GENERATOR")
 async def startup_event():
     # Perform initialization here

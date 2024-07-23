@@ -1,5 +1,5 @@
 import os
-from gai.common.utils import get_lib_config
+from gai_common.utils import get_lib_config
 
 class ClientBase:
 

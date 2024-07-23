@@ -3,7 +3,7 @@ from gai.lib.STTClient import STTClient
 from gai.lib.TTSClient import TTSClient
 from gai.lib.ITTClient import ITTClient
 from gai.lib.TTIClient import TTIClient
-from gai.common.utils import get_lib_config
+from gai_common.utils import get_lib_config
 from PIL import Image
 import base64
 from io import BytesIO

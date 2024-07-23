@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 print(sys.path)
 
 from gai.common import constants 
-from gai.common.utils import get_rc, get_app_path,get_gen_config,get_lib_config
+from gai_common.utils import get_rc, get_app_path,get_gen_config,get_lib_config
 
 class TestGaiUtils(unittest.TestCase):
 

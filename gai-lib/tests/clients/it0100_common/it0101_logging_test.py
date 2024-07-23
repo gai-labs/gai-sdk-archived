@@ -1,5 +1,5 @@
 import unittest
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 
 import os
 

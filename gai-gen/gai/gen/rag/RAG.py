@@ -1,13 +1,13 @@
 import os
-from gai.common.errors import DuplicatedDocumentException
+from gai_common.errors import DuplicatedDocumentException
 from gai.gen.rag.dalc.RAGVSRepository import RAGVSRepository
 import torch
 import gc
 from tqdm import tqdm
 from chromadb.utils.embedding_functions import InstructorEmbeddingFunction, OpenAIEmbeddingFunction
-from gai.common.utils import get_gen_config, get_app_path
+from gai_common.utils import get_gen_config, get_app_path
 import threading
-from gai.common import logging, file_utils, generators_utils
+from gai_common import logging, file_utils, generators_utils
 from gai.gen.rag.dalc.RAGDBRepository import RAGDBRepository
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

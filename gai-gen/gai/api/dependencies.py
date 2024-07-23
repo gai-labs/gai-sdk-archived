@@ -2,10 +2,10 @@ from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import asyncio
-from gai.common.utils import this_dir
+from gai_common.utils import this_dir
 import httpx
 
 def app_version():
@@ -29,10 +29,6 @@ def lib_version():
     else:
         return "Not installed."
 LIB_VERSION=lib_version()
-
-def configure_logging():
-    from gai.common.logging import configure_loglevel
-    configure_loglevel()
 
 # This tells fastapi which path to host the swagger ui page.
 def get_swagger_url():

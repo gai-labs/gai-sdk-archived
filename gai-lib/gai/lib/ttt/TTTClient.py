@@ -1,11 +1,11 @@
 from gai.lib.ttt.ChunkWrapper import ChunkWrapper
 from gai.lib.ttt.OpenAIChunkWrapper import OpenAIChunkWrapper
 from gai.lib.ttt.AnthropicChunkWrapper import AnthropicChunkWrapper
-from gai.common.utils import get_lib_config
-from gai.common.http_utils import http_post
-from gai.common.generators_utils import chat_string_to_list, chat_list_to_string
-from gai.common.errors import ApiException
-from gai.common.logging import getLogger
+from gai_common.utils import get_lib_config
+from gai_common.http_utils import http_post
+from gai_common.generators_utils import chat_string_to_list, chat_list_to_string
+from gai_common.errors import ApiException
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import json,os
 from gai.lib.ClientBase import ClientBase

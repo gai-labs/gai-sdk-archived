@@ -1,7 +1,7 @@
 import torch,gc,os
-from gai.common import logging, generators_utils
+from gai_common import logging, generators_utils
 logger = logging.getLogger(__name__)
-from gai.common.utils import get_app_path
+from gai_common.utils import get_app_path
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from pathlib import PosixPath
 

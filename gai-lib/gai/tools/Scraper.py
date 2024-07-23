@@ -1,5 +1,5 @@
 from gai.common import http_utils
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import re
 from bs4 import BeautifulSoup

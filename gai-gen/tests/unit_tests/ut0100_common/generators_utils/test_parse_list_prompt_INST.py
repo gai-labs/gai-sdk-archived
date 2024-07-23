@@ -1,4 +1,4 @@
-from gai.common.generators_utils import chat_list_to_INST
+from gai_common.generators_utils import chat_list_to_INST
 input=[{"role":"system","content":"This is system_messge_1"},
        {"role":"system","content":"This is system_messge_2"},
        {"role":"system","content":"This is system_messge_3"},

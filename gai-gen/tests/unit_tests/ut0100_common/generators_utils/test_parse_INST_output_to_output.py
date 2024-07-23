@@ -1,4 +1,4 @@
-from gai.common.generators_utils import INST_output_to_output
+from gai_common.generators_utils import INST_output_to_output
 
 input="""<s>\n\t[INST]\nTell me a one paragraph short story.\n\n</s>\n<s>\n\t[INST]\n\n\n</s>\n<s>\n\t[INST]\nOnce upon a time, there was a little girl named Lily who loved to play in the garden with her friends. One day, she found a beautiful flower and plucked it from its stem without thinking twice. Suddenly, an old witch appeared out of nowhere and cursed her for picking the flower. From that moment on, every time Lily touched something green, she turned into a frog. Despite this misfortune, Lily never lost hope and continued to explore the world around her, always looking"""
 

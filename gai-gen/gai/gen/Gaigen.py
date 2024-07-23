@@ -1,5 +1,5 @@
 import threading
-from gai.common import logging, generators_utils
+from gai_common import logging, generators_utils
 import os
 from dotenv import load_dotenv
 load_dotenv()

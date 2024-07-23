@@ -1,5 +1,5 @@
 from print_response import print_response
-from gai.common.generators_utils import chat_string_to_list
+from gai_common.generators_utils import chat_string_to_list
 from gai.gen import Gaigen
 import json
 g = Gaigen.GetInstance().load("mistral7b-exllama")

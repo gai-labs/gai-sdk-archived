@@ -1,6 +1,6 @@
 import unittest
-from gai.common.PDFConvert import PDFConvert
-from gai.common.utils import this_dir
+from gai_common.PDFConvert import PDFConvert
+from gai_common.utils import this_dir
 import os
 
 class TestPDFConvert(unittest.TestCase):

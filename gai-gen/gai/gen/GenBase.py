@@ -1,4 +1,4 @@
-from gai.common import generators_utils
+from gai_common import generators_utils
 class GenBase:
 
     def __init__(self,generator_name, config_path=None):

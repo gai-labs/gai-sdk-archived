@@ -1,6 +1,6 @@
 import unittest
 from fastapi import HTTPException
-from gai.common.errors import ApiException
+from gai_common.errors import ApiException
 import requests  # replace with the correct import path
 import httpx
 from unittest.mock import AsyncMock

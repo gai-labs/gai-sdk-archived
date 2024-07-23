@@ -2,10 +2,10 @@ import asyncio
 import os, sys
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 from gai.gen.rag.RAG import RAG
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import pytest
-from gai.common.utils import get_gen_config, get_app_path
+from gai_common.utils import get_gen_config, get_app_path
 import unittest
 
 class UT0030_RAG(unittest.TestCase):

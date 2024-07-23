@@ -2,8 +2,8 @@ from typing import List
 from transformers import AutoTokenizer
 from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
 import torch, gc, re, os
-from gai.common import logging, generators_utils
-from gai.common.utils import this_dir, get_app_path
+from gai_common import logging, generators_utils
+from gai_common.utils import this_dir, get_app_path
 logger = logging.getLogger(__name__)
 
 class Deepseek_TTC:

@@ -1,6 +1,6 @@
 import os
 import uuid
-from gai.common.errors import DuplicatedDocumentException
+from gai_common.errors import DuplicatedDocumentException
 from gai.gen.rag.dalc.IndexedDocumentChunk import IndexedDocumentChunk
 from gai.gen.rag.dalc.IndexedDocumentChunkGroup import IndexedDocumentChunkGroup
 from gai.gen.rag.models.ChunkInfoPydantic import ChunkInfoPydantic
@@ -13,9 +13,9 @@ from datetime import date
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker, selectinload, defer
 from gai.gen.rag.dalc.Base import Base
-from gai.common.utils import get_gen_config, get_app_path
-from gai.common import logging, file_utils
-from gai.common.PDFConvert import PDFConvert
+from gai_common.utils import get_gen_config, get_app_path
+from gai_common import logging, file_utils
+from gai_common.PDFConvert import PDFConvert
 from gai.gen.rag.dalc.IndexedDocument import IndexedDocument
 logger = logging.getLogger(__name__)
 from sqlalchemy.orm import Session

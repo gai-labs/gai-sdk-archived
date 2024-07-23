@@ -1,12 +1,12 @@
 from enum import Enum
 from PIL import Image
 from io import BytesIO
-from gai.common.http_utils import http_post, http_get
+from gai_common.http_utils import http_post, http_get
 from gai.lib.ClientBase import ClientBase
-from gai.common.logging import getLogger
+from gai_common.logging import getLogger
 logger = getLogger(__name__)
 import json, base64
-from gai.common.image_utils import resize_image
+from gai_common.image_utils import resize_image
 
 class TTIOutputType(Enum):
     BYTES="bytes"
